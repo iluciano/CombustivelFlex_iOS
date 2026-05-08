@@ -1,7 +1,7 @@
 import Foundation
 
 final class HistoryStore {
-    private let maxItems = 25
+    static let maxStoredItems = 25
 
     func list() -> [CalculationHistoryItem] {
         []

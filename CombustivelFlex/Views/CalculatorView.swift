@@ -1,13 +1,12 @@
 import SwiftUI
 
-struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
+struct CalculatorView: View {
+    @StateObject private var viewModel = CalculatorViewModel()
+    @State private var shouldShowResult = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
-                header
-
                 AppCard {
                     VStack(spacing: AppTheme.Spacing.medium) {
                         FuelTextField(
@@ -53,34 +52,23 @@ struct HomeView: View {
                 }
 
                 PrimaryButton(title: "Calcular") {
-                    viewModel.calculatePreview()
-                }
-
-                if let result = viewModel.previewResult {
-                    ResultSummaryView(result: result)
+                    shouldShowResult = viewModel.calculate()
                 }
             }
             .padding(AppTheme.Spacing.large)
         }
         .background(AppTheme.Colors.background)
-        .navigationTitle("Combustivel Flex")
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
-            Text("COMBUSTIVEL FLEX")
-                .font(.largeTitle.bold())
-                .foregroundStyle(AppTheme.Colors.textPrimary)
-
-            Text("Qual o melhor combustivel para o seu carro?")
-                .font(.body)
-                .foregroundStyle(AppTheme.Colors.textSecondary)
+        .navigationTitle("Calcular combustível")
+        .navigationDestination(isPresented: $shouldShowResult) {
+            if let result = viewModel.result {
+                ResultView(result: result)
+            }
         }
     }
 }
 
 #Preview {
     NavigationStack {
-        HomeView()
+        CalculatorView()
     }
 }

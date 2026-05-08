@@ -3,11 +3,11 @@ import SwiftUI
 struct HistoryView: View {
     var body: some View {
         PlaceholderView(
-            title: "Historico de calculos",
-            message: "Os calculos salvos neste aparelho vao aparecer aqui.",
+            title: "Histórico de cálculos",
+            message: "Os cálculos salvos neste aparelho vão aparecer aqui.",
             systemImage: "clock.arrow.circlepath"
         )
-        .navigationTitle("Historico")
+        .navigationTitle("Histórico")
     }
 }
 

@@ -2,24 +2,24 @@ import Foundation
 import Combine
 
 @MainActor
-final class HomeViewModel: ObservableObject {
+final class CalculatorViewModel: ObservableObject {
     @Published var gasolinePrice = ""
     @Published var ethanolPrice = ""
     @Published var gasolineConsumption = ""
     @Published var ethanolConsumption = ""
-    @Published var previewResult: FuelCalculationResult?
+    @Published private(set) var result: FuelCalculationResult?
 
     private let calculationService = FuelCalculationService()
 
-    func calculatePreview() {
+    func calculate() -> Bool {
         guard
             let gasoline = Decimal(string: normalized(gasolinePrice)),
             let ethanol = Decimal(string: normalized(ethanolPrice)),
             gasoline > 0,
             ethanol > 0
         else {
-            previewResult = nil
-            return
+            result = nil
+            return false
         }
 
         let input = FuelCalculationInput(
@@ -28,7 +28,8 @@ final class HomeViewModel: ObservableObject {
             gasolineConsumption: Decimal(string: normalized(gasolineConsumption)),
             ethanolConsumption: Decimal(string: normalized(ethanolConsumption))
         )
-        previewResult = calculationService.calculate(input: input)
+        result = calculationService.calculate(input: input)
+        return true
     }
 
     private func normalized(_ value: String) -> String {

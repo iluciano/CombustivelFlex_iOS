@@ -9,11 +9,13 @@
 /* Begin PBXBuildFile section */
 		100000000000000000000001 /* CombustivelFlexApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* CombustivelFlexApp.swift */; };
 		100000000000000000000002 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000002 /* RootTabView.swift */; };
-		100000000000000000000003 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000003 /* HomeView.swift */; };
+		100000000000000000000003 /* CalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000003 /* CalculatorView.swift */; };
 		100000000000000000000004 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000004 /* HistoryView.swift */; };
 		100000000000000000000005 /* StationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000005 /* StationsView.swift */; };
 		100000000000000000000006 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000006 /* MoreView.swift */; };
 		100000000000000000000007 /* PlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000007 /* PlaceholderView.swift */; };
+		100000000000000000000016 /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000017 /* StartView.swift */; };
+		100000000000000000000017 /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000018 /* ResultView.swift */; };
 		100000000000000000000008 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000008 /* AppTheme.swift */; };
 		100000000000000000000009 /* AppCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000009 /* AppCard.swift */; };
 		10000000000000000000000A /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000A /* PrimaryButton.swift */; };
@@ -26,18 +28,20 @@
 		100000000000000000000011 /* FuelCalculationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000011 /* FuelCalculationService.swift */; };
 		100000000000000000000012 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000012 /* HistoryStore.swift */; };
 		100000000000000000000013 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000013 /* SettingsStore.swift */; };
-		100000000000000000000014 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000014 /* HomeViewModel.swift */; };
+		100000000000000000000014 /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000014 /* CalculatorViewModel.swift */; };
 		100000000000000000000015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000015 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		200000000000000000000001 /* CombustivelFlexApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombustivelFlexApp.swift; sourceTree = "<group>"; };
 		200000000000000000000002 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
-		200000000000000000000003 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		200000000000000000000003 /* CalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorView.swift; sourceTree = "<group>"; };
 		200000000000000000000004 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		200000000000000000000005 /* StationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationsView.swift; sourceTree = "<group>"; };
 		200000000000000000000006 /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
 		200000000000000000000007 /* PlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderView.swift; sourceTree = "<group>"; };
+		200000000000000000000017 /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
+		200000000000000000000018 /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
 		200000000000000000000008 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		200000000000000000000009 /* AppCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCard.swift; sourceTree = "<group>"; };
 		20000000000000000000000A /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
@@ -50,7 +54,7 @@
 		200000000000000000000011 /* FuelCalculationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelCalculationService.swift; sourceTree = "<group>"; };
 		200000000000000000000012 /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
 		200000000000000000000013 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
-		200000000000000000000014 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		200000000000000000000014 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
 		200000000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		200000000000000000000016 /* CombustivelFlex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CombustivelFlex.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -101,11 +105,13 @@
 			isa = PBXGroup;
 			children = (
 				200000000000000000000002 /* RootTabView.swift */,
-				200000000000000000000003 /* HomeView.swift */,
+				200000000000000000000003 /* CalculatorView.swift */,
 				200000000000000000000004 /* HistoryView.swift */,
 				200000000000000000000005 /* StationsView.swift */,
 				200000000000000000000006 /* MoreView.swift */,
 				200000000000000000000007 /* PlaceholderView.swift */,
+				200000000000000000000017 /* StartView.swift */,
+				200000000000000000000018 /* ResultView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -153,7 +159,7 @@
 		400000000000000000000009 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				200000000000000000000014 /* HomeViewModel.swift */,
+				200000000000000000000014 /* CalculatorViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -237,11 +243,13 @@
 			files = (
 				100000000000000000000001 /* CombustivelFlexApp.swift in Sources */,
 				100000000000000000000002 /* RootTabView.swift in Sources */,
-				100000000000000000000003 /* HomeView.swift in Sources */,
+				100000000000000000000003 /* CalculatorView.swift in Sources */,
 				100000000000000000000004 /* HistoryView.swift in Sources */,
 				100000000000000000000005 /* StationsView.swift in Sources */,
 				100000000000000000000006 /* MoreView.swift in Sources */,
 				100000000000000000000007 /* PlaceholderView.swift in Sources */,
+				100000000000000000000016 /* StartView.swift in Sources */,
+				100000000000000000000017 /* ResultView.swift in Sources */,
 				100000000000000000000008 /* AppTheme.swift in Sources */,
 				100000000000000000000009 /* AppCard.swift in Sources */,
 				10000000000000000000000A /* PrimaryButton.swift in Sources */,
@@ -254,7 +262,7 @@
 				100000000000000000000011 /* FuelCalculationService.swift in Sources */,
 				100000000000000000000012 /* HistoryStore.swift in Sources */,
 				100000000000000000000013 /* SettingsStore.swift in Sources */,
-				100000000000000000000014 /* HomeViewModel.swift in Sources */,
+				100000000000000000000014 /* CalculatorViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

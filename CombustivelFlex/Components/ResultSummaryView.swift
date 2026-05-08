@@ -6,7 +6,7 @@ struct ResultSummaryView: View {
     var body: some View {
         AppCard {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
-                Text("O melhor combustivel para o seu carro e:")
+                Text("O melhor combustível para o seu carro é:")
                     .font(.subheadline)
                     .foregroundStyle(AppTheme.Colors.textSecondary)
 

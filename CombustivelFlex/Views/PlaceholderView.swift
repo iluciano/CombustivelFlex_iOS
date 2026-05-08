@@ -28,7 +28,7 @@ struct PlaceholderView: View {
 
 #Preview {
     PlaceholderView(
-        title: "Postos proximos",
+        title: "Postos próximos",
         message: "Funcionalidade em breve.",
         systemImage: "fuelpump"
     )

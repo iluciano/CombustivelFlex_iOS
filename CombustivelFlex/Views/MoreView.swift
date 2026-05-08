@@ -6,23 +6,23 @@ struct MoreView: View {
             NavigationLink {
                 PlaceholderView(
                     title: "Dicas de economia",
-                    message: "As dicas serao migradas do app Android nas proximas etapas.",
+                    message: "As dicas serão migradas do app Android nas próximas etapas.",
                     systemImage: "lightbulb"
                 )
                 .navigationTitle("Dicas")
             } label: {
-                FeatureRow(title: "Dicas de economia", subtitle: "Aprenda a economizar combustivel", systemImage: "lightbulb")
+                FeatureRow(title: "Dicas de economia", subtitle: "Aprenda a economizar combustível", systemImage: "lightbulb")
             }
 
             NavigationLink {
                 PlaceholderView(
-                    title: "Configuracoes",
-                    message: "Preferencias de consumo, unidade e notificacoes entram aqui.",
+                    title: "Configurações",
+                    message: "Preferências de consumo, unidade e notificações entram aqui.",
                     systemImage: "gearshape"
                 )
-                .navigationTitle("Configuracoes")
+                .navigationTitle("Configurações")
             } label: {
-                FeatureRow(title: "Configuracoes", subtitle: "Personalize suas preferencias", systemImage: "gearshape")
+                FeatureRow(title: "Configurações", subtitle: "Personalize suas preferências", systemImage: "gearshape")
             }
         }
         .navigationTitle("Mais")

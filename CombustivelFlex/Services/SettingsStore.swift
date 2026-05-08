@@ -1,7 +1,7 @@
 import Foundation
 
 final class SettingsStore {
-    enum Unit: String {
+    enum Unit: String, Codable, Equatable {
         case liter
         case kilometer
     }

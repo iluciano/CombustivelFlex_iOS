@@ -1,6 +1,6 @@
 import Foundation
 
-enum FuelType: String, Codable {
+enum FuelType: String, Codable, Equatable {
     case gasoline
     case ethanol
 
