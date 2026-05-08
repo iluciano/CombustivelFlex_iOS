@@ -13,11 +13,17 @@ Motivos:
 - Facilita publicar releases independentes e configurar CI especifico para iOS.
 - Mantem o Android estavel enquanto a versao iOS evolui.
 
-Neste primeiro envio, se o codigo estiver em uma branch dentro do repositorio Android, trate-a como uma area temporaria de transporte. No MacBook, o ideal e criar um repositorio separado para o iOS, por exemplo `CombustivelFlex_iOS`, e mover este conteudo para ele.
+O codigo iOS esta no repositorio separado `iluciano/CombustivelFlex_iOS`.
 
 ## Como abrir no MacBook
 
-1. Clone ou baixe o codigo enviado para o GitHub.
+1. Clone o repositorio:
+
+```bash
+git clone https://github.com/iluciano/CombustivelFlex_iOS.git
+cd CombustivelFlex_iOS
+```
+
 2. Abra o arquivo:
 
 ```bash
