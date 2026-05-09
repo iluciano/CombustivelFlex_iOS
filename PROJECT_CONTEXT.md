@@ -31,6 +31,8 @@ O app compila e está com o fluxo principal do MVP implementado:
 - Google AdMob integrado:
   - banners em Calcular, Resultado, Configurações e Dicas;
   - anúncio nativo avançado na aba Mais.
+- Banners ficam alinhados acima do menu do rodapé.
+- iPhone travado em portrait para preservar o layout atual.
 
 ## Validação
 
@@ -73,15 +75,15 @@ Implementada em `CombustivelFlex/Services/FuelCalculationService.swift`.
 
 SDK: `GoogleMobileAds` via Swift Package Manager.
 
-App ID configurado no `Info.plist` gerado:
+App ID configurado em `CombustivelFlex/Info.plist` explícito:
 
 - `ca-app-pub-1199102836233471~1616819670`
 
 Arquivos principais:
 
 - `AdMobConfig.swift`: IDs de anúncios.
-- `AdMobBannerView.swift`: banner SwiftUI com banner adaptativo.
-- `AdMobNativeAdView.swift`: native advanced ad usado na tela Mais.
+- `AdMobBannerView.swift`: banner SwiftUI com banner adaptativo, `rootViewController` explícito e rodapé reservado acima da tab bar.
+- `AdMobNativeAdView.swift`: native advanced ad usado na tela Mais com `MediaView` de 120x120 para atender ao validator do Google.
 
 IDs configurados:
 
@@ -91,7 +93,7 @@ IDs configurados:
 - Dicas: `ca-app-pub-1199102836233471/8394430723`
 - Mais native advanced: `ca-app-pub-1199102836233471/6566343739`
 
-Observação: antes de distribuição, revisar exigências finais do AdMob, consentimento/privacidade e SKAdNetwork conforme documentação vigente.
+Observação: antes de distribuição, revisar exigências finais do AdMob, consentimento/privacidade, ATT se aplicável e SKAdNetwork conforme documentação vigente.
 
 ## Assets
 
@@ -118,12 +120,13 @@ Ainda pendente:
 
 ## Próximo Passo Recomendado
 
-Validar manualmente no simulador:
+Validar manualmente no simulador/Xcode:
 
 1. Fluxo da tela inicial para Calcular, Dicas e Configurações.
 2. Voltar pelo rodapé para Início e confirmar que os menus continuam funcionando.
 3. Configurações -> consumo padrão -> Calculadora.
 4. Cálculo -> pergunta para salvar/substituir consumo padrão -> Resultado -> Recalcular.
+5. AdMob validator nas telas com anúncios, especialmente aba Mais.
 
 Depois disso, próximos blocos naturais:
 

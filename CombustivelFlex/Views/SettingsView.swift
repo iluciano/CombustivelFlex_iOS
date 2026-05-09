@@ -77,9 +77,7 @@ struct SettingsView: View {
             .padding(AppTheme.Spacing.large)
         }
         .background(AppTheme.Colors.background)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            AdMobBannerView(adUnitID: AdMobConfig.Banner.settings)
-        }
+        .adMobBannerFooter(adUnitID: AdMobConfig.Banner.settings)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(item: $editingFuel) { fuel in
             ConsumptionEditorView(fuel: fuel)
@@ -303,27 +301,7 @@ private struct ConsumptionEditorView: View {
     }
 
     private func completed(_ value: String) -> String {
-        let digits = value.filter(\.isNumber).prefix(4)
-
-        guard !digits.isEmpty else {
-            return ""
-        }
-
-        switch digits.count {
-        case 1:
-            return "\(digits).00"
-        case 2, 3:
-            let integerDigit = digits.prefix(1)
-            let decimalDigits = digits.dropFirst(1)
-            let completedDecimalDigits = String(decimalDigits).padding(toLength: 2, withPad: "0", startingAt: 0)
-
-            return "\(integerDigit).\(completedDecimalDigits)"
-        default:
-            let integerDigits = digits.prefix(2)
-            let decimalDigits = digits.dropFirst(2)
-
-            return "\(integerDigits).\(decimalDigits)"
-        }
+        NumericInputMask.completed(value)
     }
 }
 

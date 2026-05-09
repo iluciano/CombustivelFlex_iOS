@@ -23,7 +23,7 @@ struct FuelTextField: View {
                     .textInputAutocapitalization(.never)
                     .focused($isFocused)
                     .onChange(of: text) { _, newValue in
-                        let maskedValue = masked(newValue)
+                        let maskedValue = NumericInputMask.masked(newValue)
 
                         if maskedValue != newValue {
                             text = maskedValue
@@ -34,13 +34,15 @@ struct FuelTextField: View {
                             return
                         }
 
-                        text = completed(text)
+                        text = NumericInputMask.completed(text)
                     }
             }
         }
     }
+}
 
-    private func masked(_ value: String) -> String {
+enum NumericInputMask {
+    static func masked(_ value: String) -> String {
         let digits = value.filter(\.isNumber).prefix(4)
 
         guard !digits.isEmpty else {
@@ -63,7 +65,7 @@ struct FuelTextField: View {
         }
     }
 
-    private func completed(_ value: String) -> String {
+    static func completed(_ value: String) -> String {
         let digits = value.filter(\.isNumber).prefix(4)
 
         guard !digits.isEmpty else {
@@ -85,5 +87,17 @@ struct FuelTextField: View {
 
             return "\(integerDigits).\(decimalDigits)"
         }
+    }
+
+    static func normalizedDecimal(_ value: String) -> String {
+        let trimmedValue = value
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: ",", with: ".")
+
+        if trimmedValue.hasSuffix(".") {
+            return "\(trimmedValue)00"
+        }
+
+        return trimmedValue
     }
 }

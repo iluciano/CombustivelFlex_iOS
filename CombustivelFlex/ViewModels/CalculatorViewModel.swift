@@ -15,8 +15,8 @@ final class CalculatorViewModel: ObservableObject {
 
     func calculate() -> Bool {
         guard
-            let gasoline = Decimal(string: normalized(gasolinePrice)),
-            let ethanol = Decimal(string: normalized(ethanolPrice))
+            let gasoline = Decimal(string: NumericInputMask.normalizedDecimal(gasolinePrice)),
+            let ethanol = Decimal(string: NumericInputMask.normalizedDecimal(ethanolPrice))
         else {
             result = nil
             lastInput = nil
@@ -120,18 +120,8 @@ final class CalculatorViewModel: ObservableObject {
         }
     }
 
-    private func normalized(_ value: String) -> String {
-        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
-
-        if trimmedValue.hasSuffix(".") {
-            return "\(trimmedValue)00"
-        }
-
-        return trimmedValue
-    }
-
     private func optionalDecimal(_ value: String, invalidMessage: String) throws -> Decimal? {
-        let normalizedValue = normalized(value)
+        let normalizedValue = NumericInputMask.normalizedDecimal(value)
 
         guard !normalizedValue.isEmpty else {
             return nil
@@ -145,27 +135,7 @@ final class CalculatorViewModel: ObservableObject {
     }
 
     private func completedConsumption(_ value: String) -> String {
-        let digits = value.filter(\.isNumber).prefix(4)
-
-        guard !digits.isEmpty else {
-            return ""
-        }
-
-        switch digits.count {
-        case 1:
-            return "\(digits).00"
-        case 2, 3:
-            let integerDigit = digits.prefix(1)
-            let decimalDigits = digits.dropFirst(1)
-            let completedDecimalDigits = String(decimalDigits).padding(toLength: 2, withPad: "0", startingAt: 0)
-
-            return "\(integerDigit).\(completedDecimalDigits)"
-        default:
-            let integerDigits = digits.prefix(2)
-            let decimalDigits = digits.dropFirst(2)
-
-            return "\(integerDigits).\(decimalDigits)"
-        }
+        NumericInputMask.completed(value)
     }
 }
 

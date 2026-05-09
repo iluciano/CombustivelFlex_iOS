@@ -16,7 +16,7 @@ final class NativeAdViewModel: NSObject, ObservableObject {
     func load() {
         let loader = AdLoader(
             adUnitID: adUnitID,
-            rootViewController: nil,
+            rootViewController: AdMobPresentationContext.rootViewController,
             adTypes: [.native],
             options: nil
         )
@@ -34,7 +34,9 @@ extension NativeAdViewModel: NativeAdLoaderDelegate {
     }
 
     nonisolated func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) {
+        #if DEBUG
         print("Native ad failed to load: \(error.localizedDescription)")
+        #endif
     }
 }
 
@@ -47,7 +49,7 @@ struct AdMobNativeAdView: View {
 
     var body: some View {
         NativeAdContainer(viewModel: viewModel)
-            .frame(height: 96)
+            .frame(height: 144)
             .background(AppTheme.Colors.surface)
             .task {
                 viewModel.load()
@@ -72,38 +74,38 @@ private struct NativeAdContainer: UIViewRepresentable {
         badgeLabel.layer.masksToBounds = true
         badgeLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let iconView = UIImageView()
-        iconView.contentMode = .scaleAspectFit
-        iconView.layer.cornerRadius = 8
-        iconView.layer.masksToBounds = true
-        iconView.translatesAutoresizingMaskIntoConstraints = false
+        let mediaView = MediaView()
+        mediaView.contentMode = .scaleAspectFill
+        mediaView.clipsToBounds = true
+        mediaView.layer.cornerRadius = 8
+        mediaView.translatesAutoresizingMaskIntoConstraints = false
 
         let headlineLabel = UILabel()
-        headlineLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        headlineLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         headlineLabel.textColor = UIColor(Color(hex: 0x101828))
-        headlineLabel.numberOfLines = 1
+        headlineLabel.numberOfLines = 2
         headlineLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let bodyLabel = UILabel()
-        bodyLabel.font = .systemFont(ofSize: 14)
+        bodyLabel.font = .systemFont(ofSize: 12)
         bodyLabel.textColor = UIColor(Color(hex: 0x475467))
-        bodyLabel.numberOfLines = 1
+        bodyLabel.numberOfLines = 2
         bodyLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let callToActionButton = UIButton(type: .system)
-        callToActionButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        callToActionButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
         callToActionButton.tintColor = .white
         callToActionButton.backgroundColor = UIColor(Color(hex: 0x1473F8))
-        callToActionButton.layer.cornerRadius = 24
+        callToActionButton.layer.cornerRadius = 20
         callToActionButton.translatesAutoresizingMaskIntoConstraints = false
 
         adView.addSubview(badgeLabel)
-        adView.addSubview(iconView)
+        adView.addSubview(mediaView)
         adView.addSubview(headlineLabel)
         adView.addSubview(bodyLabel)
         adView.addSubview(callToActionButton)
 
-        adView.iconView = iconView
+        adView.mediaView = mediaView
         adView.headlineView = headlineLabel
         adView.bodyView = bodyLabel
         adView.callToActionView = callToActionButton
@@ -114,23 +116,23 @@ private struct NativeAdContainer: UIViewRepresentable {
             badgeLabel.widthAnchor.constraint(equalToConstant: 24),
             badgeLabel.heightAnchor.constraint(equalToConstant: 16),
 
-            iconView.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 54),
-            iconView.centerYAnchor.constraint(equalTo: adView.centerYAnchor),
-            iconView.widthAnchor.constraint(equalToConstant: 56),
-            iconView.heightAnchor.constraint(equalToConstant: 56),
+            mediaView.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 16),
+            mediaView.centerYAnchor.constraint(equalTo: adView.centerYAnchor),
+            mediaView.widthAnchor.constraint(equalToConstant: 120),
+            mediaView.heightAnchor.constraint(equalToConstant: 120),
 
             callToActionButton.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -16),
             callToActionButton.centerYAnchor.constraint(equalTo: adView.centerYAnchor),
-            callToActionButton.widthAnchor.constraint(equalToConstant: 112),
-            callToActionButton.heightAnchor.constraint(equalToConstant: 48),
+            callToActionButton.widthAnchor.constraint(equalToConstant: 92),
+            callToActionButton.heightAnchor.constraint(equalToConstant: 40),
 
-            headlineLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 14),
-            headlineLabel.trailingAnchor.constraint(equalTo: callToActionButton.leadingAnchor, constant: -12),
-            headlineLabel.topAnchor.constraint(equalTo: iconView.topAnchor, constant: 2),
+            headlineLabel.leadingAnchor.constraint(equalTo: mediaView.trailingAnchor, constant: 12),
+            headlineLabel.trailingAnchor.constraint(equalTo: callToActionButton.leadingAnchor, constant: -10),
+            headlineLabel.topAnchor.constraint(equalTo: mediaView.topAnchor, constant: 22),
 
             bodyLabel.leadingAnchor.constraint(equalTo: headlineLabel.leadingAnchor),
             bodyLabel.trailingAnchor.constraint(equalTo: headlineLabel.trailingAnchor),
-            bodyLabel.topAnchor.constraint(equalTo: headlineLabel.bottomAnchor, constant: 4),
+            bodyLabel.topAnchor.constraint(equalTo: headlineLabel.bottomAnchor, constant: 5),
         ])
 
         return adView
@@ -144,8 +146,6 @@ private struct NativeAdContainer: UIViewRepresentable {
         (adView.headlineView as? UILabel)?.text = nativeAd.headline
         (adView.bodyView as? UILabel)?.text = nativeAd.body
         adView.bodyView?.isHidden = nativeAd.body == nil
-        (adView.iconView as? UIImageView)?.image = nativeAd.icon?.image
-        adView.iconView?.isHidden = nativeAd.icon == nil
         (adView.callToActionView as? UIButton)?.setTitle(nativeAd.callToAction, for: .normal)
         adView.callToActionView?.isHidden = nativeAd.callToAction == nil
         adView.callToActionView?.isUserInteractionEnabled = false

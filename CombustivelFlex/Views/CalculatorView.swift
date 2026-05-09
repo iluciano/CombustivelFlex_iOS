@@ -30,9 +30,7 @@ struct CalculatorView: View {
         }
         .background(AppTheme.Colors.background)
         .ignoresSafeArea(edges: .top)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            AdMobBannerView(adUnitID: AdMobConfig.Banner.calculator)
-        }
+        .adMobBannerFooter(adUnitID: AdMobConfig.Banner.calculator)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             viewModel.applyDefaultConsumption(
@@ -95,7 +93,7 @@ struct CalculatorView: View {
             AppCard {
                 VStack(spacing: AppTheme.Spacing.medium) {
                     FuelTextField(
-                        title: "Preco da gasolina",
+                        title: "Preço da gasolina",
                         placeholder: "R$ 0,00",
                         text: $viewModel.gasolinePrice,
                         tint: AppTheme.Colors.orange
@@ -104,7 +102,7 @@ struct CalculatorView: View {
                     Divider()
 
                     FuelTextField(
-                        title: "Preco do etanol",
+                        title: "Preço do etanol",
                         placeholder: "R$ 0,00",
                         text: $viewModel.ethanolPrice,
                         tint: AppTheme.Colors.green
