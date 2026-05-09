@@ -33,6 +33,10 @@ O app compila e está com o fluxo principal do MVP implementado:
   - anúncio nativo avançado na aba Mais.
 - Banners ficam alinhados acima do menu do rodapé.
 - iPhone travado em portrait para preservar o layout atual.
+- Bundle Identifier configurado para App Store: `br.com.igorluciano.combustivelflex`.
+- Team configurado no projeto Xcode: `WK7S77VS67`.
+- App Icon configurado em `AppIcon.appiconset` e conectado ao target via `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`.
+- `UIRequiresFullScreen = true` configurado no `Info.plist`.
 
 ## Validação
 
@@ -48,6 +52,47 @@ Testes:
 - Existe `FuelCalculationServiceTests`.
 - Testes unitários passaram quando executados pelo usuário no Xcode.
 - Não rodar `xcodebuild test` pelo terminal, pois travou o sistema anteriormente.
+
+## Preparação App Store
+
+Status em 2026-05-09:
+
+- App criado/preparado no App Store Connect com Bundle ID `br.com.igorluciano.combustivelflex`.
+- Archive local no Mac antigo falhou no upload porque o ambiente estava em:
+  - Xcode `16.2`;
+  - iOS SDK `18.2`.
+- O App Store Connect exigiu build com:
+  - Xcode `26` ou superior;
+  - iOS SDK `26` ou superior.
+- Esse bloqueio é de ambiente, não de código. O Mac antigo não roda Xcode 26.
+
+No Mac novo:
+
+1. Clonar/puxar `main` do repositório.
+2. Instalar Xcode 26 ou superior.
+3. Abrir `CombustivelFlex.xcodeproj`.
+4. Em `Xcode > Settings > Locations`, selecionar o Xcode novo em `Command Line Tools`.
+5. Conferir em `Signing & Capabilities`:
+   - Team: `WK7S77VS67`;
+   - Bundle Identifier: `br.com.igorluciano.combustivelflex`;
+   - Signing automático habilitado.
+6. Rodar o app em simulador/dispositivo e confirmar:
+   - App Icon aparece corretamente;
+   - fluxo principal abre;
+   - anúncios não sobrepõem a tab bar;
+   - tela Mais não acusa problemas no AdMob native validator.
+7. Fazer `Product > Archive`.
+8. No Organizer, validar e enviar para App Store Connect.
+9. Se houver erro de ícone no App Store Connect, confirmar no target:
+   - `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`;
+   - `Assets.xcassets/AppIcon.appiconset` possui `AppIcon-1024x1024@1x.png`.
+
+Versão atual:
+
+- `MARKETING_VERSION = 1.0`
+- `CURRENT_PROJECT_VERSION = 1`
+
+Antes de reenviar novo build após rejeição/novo upload, incrementar `CURRENT_PROJECT_VERSION` se o App Store Connect exigir build number novo.
 
 ## Regra de Cálculo
 
@@ -101,12 +146,15 @@ Assets adicionados:
 
 - `road_header`: imagem real da estrada usada no topo da tela inicial e da tela de cálculo.
 - `stations_hero`: imagem da tela de postos próximos.
+- `AppIcon.appiconset`: ícone final do app com tamanhos iPhone/iPad/App Store, incluindo `1024x1024`.
 
 Ainda pendente:
 
-- App Icon final.
 - Launch Screen.
 - Avaliar app e compartilhar com amigos com links reais quando houver App Store ID.
+- Screenshots para App Store.
+- Textos/metadados da loja.
+- Declaração de privacidade/App Privacy.
 
 ## Navegação
 
@@ -130,7 +178,7 @@ Validar manualmente no simulador/Xcode:
 
 Depois disso, próximos blocos naturais:
 
-- Ajustar App Icon e Launch Screen.
+- Ajustar Launch Screen.
 - Evoluir notificações reais.
 - Implementar avaliação/compartilhamento quando houver links da loja.
 - Validar anúncios em device/simulador pelo Xcode e checar políticas/consentimento AdMob.
