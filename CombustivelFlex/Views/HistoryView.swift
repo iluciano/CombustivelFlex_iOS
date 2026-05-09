@@ -1,13 +1,133 @@
 import SwiftUI
 
 struct HistoryView: View {
+    @EnvironmentObject private var historyStore: HistoryStore
+    @State private var shouldConfirmClear = false
+
     var body: some View {
-        PlaceholderView(
-            title: "Histórico de cálculos",
-            message: "Os cálculos salvos neste aparelho vão aparecer aqui.",
-            systemImage: "clock.arrow.circlepath"
-        )
+        Group {
+            if historyStore.items.isEmpty {
+                PlaceholderView(
+                    title: "Histórico de cálculos",
+                    message: "Os cálculos salvos neste aparelho vão aparecer aqui.",
+                    systemImage: "clock.arrow.circlepath"
+                )
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: AppTheme.Spacing.medium) {
+                        ForEach(historyStore.items) { item in
+                            HistoryItemView(item: item)
+                        }
+                    }
+                    .padding(AppTheme.Spacing.large)
+                }
+                .background(AppTheme.Colors.background)
+            }
+        }
         .navigationTitle("Histórico")
+        .toolbar {
+            if !historyStore.items.isEmpty {
+                Button("Limpar") {
+                    shouldConfirmClear = true
+                }
+            }
+        }
+        .confirmationDialog(
+            "Limpar histórico?",
+            isPresented: $shouldConfirmClear,
+            titleVisibility: .visible
+        ) {
+            Button("Limpar histórico", role: .destructive) {
+                historyStore.clear()
+            }
+        }
+    }
+}
+
+private struct HistoryItemView: View {
+    let item: CalculationHistoryItem
+
+    var body: some View {
+        AppCard {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
+                HStack(alignment: .top, spacing: AppTheme.Spacing.medium) {
+                    Image(systemName: item.result == .ethanol ? "fuelpump.fill" : "fuelpump")
+                        .font(.title2)
+                        .foregroundStyle(item.result == .ethanol ? AppTheme.Colors.green : AppTheme.Colors.orange)
+                        .frame(width: 32)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.result.displayName)
+                            .font(.headline)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        Text(item.basis == .consumption ? "Custo por km" : "Regra dos 70%")
+                            .font(.subheadline)
+                            .foregroundStyle(AppTheme.Colors.textSecondary)
+                    }
+
+                    Spacer()
+
+                    Text(item.createdAt, format: .dateTime.day().month().hour().minute())
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.Colors.textMuted)
+                }
+
+                VStack(spacing: AppTheme.Spacing.small) {
+                    HistoryValueRow(title: "Gasolina", value: currency(item.gasolinePrice))
+                    HistoryValueRow(title: "Etanol", value: currency(item.ethanolPrice))
+
+                    if let gasolineConsumption = item.gasolineConsumption,
+                       let ethanolConsumption = item.ethanolConsumption {
+                        HistoryValueRow(
+                            title: "Consumo",
+                            value: "\(decimal(gasolineConsumption)) / \(decimal(ethanolConsumption)) km/L"
+                        )
+                    }
+
+                    HistoryValueRow(title: "Economia estimada", value: currency(item.estimatedSavings))
+                }
+            }
+        }
+    }
+
+    private func currency(_ value: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+
+        return formatter.string(from: NSDecimalNumber(decimal: value)) ?? "R$ 0,00"
+    }
+
+    private func decimal(_ value: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.minimumFractionDigits = 1
+        formatter.maximumFractionDigits = 1
+
+        return formatter.string(from: NSDecimalNumber(decimal: value)) ?? "0,0"
+    }
+}
+
+private struct HistoryValueRow: View {
+    let title: String
+    let value: String
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+
+            Spacer(minLength: AppTheme.Spacing.medium)
+
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+        }
     }
 }
 
@@ -15,4 +135,5 @@ struct HistoryView: View {
     NavigationStack {
         HistoryView()
     }
+    .environmentObject(HistoryStore())
 }

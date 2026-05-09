@@ -8,6 +8,8 @@ struct CalculationHistoryItem: Identifiable, Codable, Equatable {
     var gasolineConsumption: Decimal?
     var ethanolConsumption: Decimal?
     var result: FuelType
+    var basis: FuelCalculationBasis
+    var estimatedSavings: Decimal
 
     init(
         id: UUID = UUID(),
@@ -16,7 +18,9 @@ struct CalculationHistoryItem: Identifiable, Codable, Equatable {
         ethanolPrice: Decimal,
         gasolineConsumption: Decimal? = nil,
         ethanolConsumption: Decimal? = nil,
-        result: FuelType
+        result: FuelType,
+        basis: FuelCalculationBasis,
+        estimatedSavings: Decimal
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -25,5 +29,7 @@ struct CalculationHistoryItem: Identifiable, Codable, Equatable {
         self.gasolineConsumption = gasolineConsumption
         self.ethanolConsumption = ethanolConsumption
         self.result = result
+        self.basis = basis
+        self.estimatedSavings = estimatedSavings
     }
 }

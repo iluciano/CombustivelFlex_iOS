@@ -13,6 +13,10 @@ struct ResultSummaryView: View {
                 Text(result.recommendedFuel.displayName)
                     .font(.title.bold())
                     .foregroundStyle(result.recommendedFuel == .ethanol ? AppTheme.Colors.green : AppTheme.Colors.orange)
+
+                Text(result.basis == .consumption ? "Cálculo por custo por km" : "Cálculo pela regra dos 70%")
+                    .font(.footnote)
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

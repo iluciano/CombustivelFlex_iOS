@@ -1,51 +1,53 @@
 import SwiftUI
 
+enum HomeRoute: Hashable {
+    case calculator
+    case tips
+    case settings
+}
+
 struct StartView: View {
     let selectTab: (AppTab) -> Void
+    let navigate: (HomeRoute) -> Void
 
     var body: some View {
-        ZStack(alignment: .top) {
-            AppTheme.Colors.background
-                .ignoresSafeArea()
-
+        ScrollView {
             RoadHeaderView()
                 .frame(height: 255)
+                .frame(maxWidth: .infinity)
                 .ignoresSafeArea(edges: .top)
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    Spacer()
-                        .frame(height: 185)
+            VStack(spacing: AppTheme.Spacing.large) {
+                brandHeader
 
-                    VStack(spacing: AppTheme.Spacing.large) {
-                        brandHeader
-
-                        VStack(spacing: AppTheme.Spacing.medium) {
-                            calculatorAction
-                            tabAction(.history, item: .history)
-                            tabAction(.stations, item: .stations)
-                            tipsAction
-                            settingsAction
-                        }
-                    }
-                    .padding(.horizontal, AppTheme.Spacing.large)
-                    .padding(.top, 34)
-                    .padding(.bottom, AppTheme.Spacing.large)
-                    .background(AppTheme.Colors.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 5)
-                    .padding(.horizontal, AppTheme.Spacing.medium)
-                    .padding(.bottom, AppTheme.Spacing.large)
+                VStack(spacing: AppTheme.Spacing.medium) {
+                    calculatorAction
+                    tabAction(.history, item: .history)
+                    tabAction(.stations, item: .stations)
+                    tipsAction
+                    settingsAction
                 }
+                .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.plain)
+            .padding(.horizontal, AppTheme.Spacing.large)
+            .padding(.top, 34)
+            .padding(.bottom, AppTheme.Spacing.large)
+            .background(AppTheme.Colors.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 5)
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .offset(y: -70)
+            .padding(.bottom, -46)
         }
+        .background(AppTheme.Colors.background)
+        .ignoresSafeArea(edges: .top)
+        .buttonStyle(.plain)
         .toolbar(.hidden, for: .navigationBar)
     }
 
     private var calculatorAction: some View {
-        NavigationLink {
-            CalculatorView()
+        Button {
+            navigate(.calculator)
         } label: {
             StartActionRow(item: .calculator)
         }
@@ -60,26 +62,16 @@ struct StartView: View {
     }
 
     private var tipsAction: some View {
-        NavigationLink {
-            PlaceholderView(
-                title: "Dicas de economia",
-                message: "As dicas serão migradas do app Android nas próximas etapas.",
-                systemImage: "lightbulb"
-            )
-            .navigationTitle("Dicas")
+        Button {
+            navigate(.tips)
         } label: {
             StartActionRow(item: .tips)
         }
     }
 
     private var settingsAction: some View {
-        NavigationLink {
-            PlaceholderView(
-                title: "Configurações",
-                message: "Preferências de consumo, unidade e notificações entram aqui.",
-                systemImage: "gearshape.fill"
-            )
-            .navigationTitle("Configurações")
+        Button {
+            navigate(.settings)
         } label: {
             StartActionRow(item: .settings)
         }
@@ -172,7 +164,7 @@ private extension StartActionItem {
     )
 }
 
-private struct BrandIcon: View {
+struct BrandIcon: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
@@ -201,6 +193,7 @@ private struct StartActionRow: View {
                     Text(item.title)
                         .font(.headline)
                         .foregroundStyle(AppTheme.Colors.textPrimary)
+                        .lineLimit(2)
 
                     if let badge = item.badge {
                         Text(badge)
@@ -219,6 +212,7 @@ private struct StartActionRow: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer(minLength: AppTheme.Spacing.small)
 
@@ -237,74 +231,23 @@ private struct StartActionRow: View {
     }
 }
 
-private struct RoadHeaderView: View {
+struct RoadHeaderView: View {
     var body: some View {
         GeometryReader { proxy in
-            let width = proxy.size.width
-            let height = proxy.size.height
-
-            ZStack {
-                LinearGradient(
-                    colors: [Color(hex: 0x0A75B8), Color(hex: 0x7FC7EE)],
-                    startPoint: .top,
-                    endPoint: .center
-                )
-
-                MountainRange(width: width, height: height, yOffset: 72)
-                    .fill(Color(hex: 0x7B6A57))
-
-                MountainRange(width: width, height: height, yOffset: 91)
-                    .fill(Color(hex: 0xD7C1A3))
-
-                Rectangle()
-                    .fill(Color(hex: 0xB58349))
-                    .frame(height: height * 0.34)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-
-                Path { path in
-                    path.move(to: CGPoint(x: width * 0.43, y: height))
-                    path.addLine(to: CGPoint(x: width * 0.50, y: height * 0.48))
-                    path.addLine(to: CGPoint(x: width * 0.57, y: height))
-                    path.closeSubpath()
-                }
-                .fill(Color(hex: 0x1B1E24))
-
-                Path { path in
-                    path.move(to: CGPoint(x: width * 0.496, y: height))
-                    path.addLine(to: CGPoint(x: width * 0.500, y: height * 0.50))
-                    path.addLine(to: CGPoint(x: width * 0.504, y: height))
-                    path.closeSubpath()
-                }
-                .fill(Color(hex: 0xF9C11C))
-            }
+            Image("road_header")
+                .resizable()
+                .scaledToFill()
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .clipped()
         }
-    }
-}
-
-private struct MountainRange: Shape {
-    let width: CGFloat
-    let height: CGFloat
-    let yOffset: CGFloat
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: 0, y: height * 0.58))
-        path.addLine(to: CGPoint(x: width * 0.13, y: yOffset + 22))
-        path.addLine(to: CGPoint(x: width * 0.25, y: yOffset + 38))
-        path.addLine(to: CGPoint(x: width * 0.39, y: yOffset - 18))
-        path.addLine(to: CGPoint(x: width * 0.52, y: yOffset + 24))
-        path.addLine(to: CGPoint(x: width * 0.67, y: yOffset - 7))
-        path.addLine(to: CGPoint(x: width * 0.82, y: yOffset + 33))
-        path.addLine(to: CGPoint(x: width, y: yOffset + 2))
-        path.addLine(to: CGPoint(x: width, y: height * 0.70))
-        path.addLine(to: CGPoint(x: 0, y: height * 0.70))
-        path.closeSubpath()
-        return path
     }
 }
 
 #Preview {
     NavigationStack {
-        StartView { _ in }
+        StartView(
+            selectTab: { _ in },
+            navigate: { _ in }
+        )
     }
 }
