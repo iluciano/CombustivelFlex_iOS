@@ -48,6 +48,9 @@ struct ResultView: View {
             .padding(AppTheme.Spacing.large)
         }
         .background(AppTheme.Colors.background)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            AdMobBannerView(adUnitID: AdMobConfig.Banner.result)
+        }
         .toolbar(.hidden, for: .navigationBar)
     }
 

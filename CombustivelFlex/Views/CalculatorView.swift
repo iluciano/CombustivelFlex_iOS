@@ -30,6 +30,9 @@ struct CalculatorView: View {
         }
         .background(AppTheme.Colors.background)
         .ignoresSafeArea(edges: .top)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            AdMobBannerView(adUnitID: AdMobConfig.Banner.calculator)
+        }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             viewModel.applyDefaultConsumption(

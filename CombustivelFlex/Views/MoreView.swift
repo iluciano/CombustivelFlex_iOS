@@ -16,6 +16,9 @@ struct MoreView: View {
             }
         }
         .navigationTitle("Mais")
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            AdMobNativeAdView(adUnitID: AdMobConfig.Native.more)
+        }
     }
 }
 

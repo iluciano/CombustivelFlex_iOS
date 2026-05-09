@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C00000000000000000000001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = C20000000000000000000001 /* GoogleMobileAds */; };
 		A00000000000000000000001 /* FuelCalculationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* FuelCalculationServiceTests.swift */; };
 		100000000000000000000001 /* CombustivelFlexApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* CombustivelFlexApp.swift */; };
 		100000000000000000000002 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000002 /* RootTabView.swift */; };
@@ -32,6 +33,9 @@
 		100000000000000000000011 /* FuelCalculationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000011 /* FuelCalculationService.swift */; };
 		100000000000000000000012 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000012 /* HistoryStore.swift */; };
 		100000000000000000000013 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000013 /* SettingsStore.swift */; };
+		10000000000000000000001C /* AdMobConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001C /* AdMobConfig.swift */; };
+		10000000000000000000001D /* AdMobBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001D /* AdMobBannerView.swift */; };
+		10000000000000000000001E /* AdMobNativeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001E /* AdMobNativeAdView.swift */; };
 		100000000000000000000014 /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000014 /* CalculatorViewModel.swift */; };
 		100000000000000000000015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000015 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -73,6 +77,9 @@
 		200000000000000000000011 /* FuelCalculationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelCalculationService.swift; sourceTree = "<group>"; };
 		200000000000000000000012 /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
 		200000000000000000000013 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		20000000000000000000001C /* AdMobConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobConfig.swift; sourceTree = "<group>"; };
+		20000000000000000000001D /* AdMobBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobBannerView.swift; sourceTree = "<group>"; };
+		20000000000000000000001E /* AdMobNativeAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobNativeAdView.swift; sourceTree = "<group>"; };
 		200000000000000000000014 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
 		200000000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		200000000000000000000016 /* CombustivelFlex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CombustivelFlex.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,6 +90,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C00000000000000000000001 /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,6 +190,9 @@
 				200000000000000000000011 /* FuelCalculationService.swift */,
 				200000000000000000000012 /* HistoryStore.swift */,
 				200000000000000000000013 /* SettingsStore.swift */,
+				20000000000000000000001C /* AdMobConfig.swift */,
+				20000000000000000000001D /* AdMobBannerView.swift */,
+				20000000000000000000001E /* AdMobNativeAdView.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -227,6 +238,9 @@
 			dependencies = (
 			);
 			name = CombustivelFlex;
+			packageProductDependencies = (
+				C20000000000000000000001 /* GoogleMobileAds */,
+			);
 			productName = CombustivelFlex;
 			productReference = 200000000000000000000016 /* CombustivelFlex.app */;
 			productType = "com.apple.product-type.application";
@@ -279,6 +293,9 @@
 			productRefGroup = 40000000000000000000000B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
+			packageReferences = (
+				C10000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			targets = (
 				500000000000000000000001 /* CombustivelFlex */,
 				A50000000000000000000001 /* CombustivelFlexTests */,
@@ -326,6 +343,9 @@
 				100000000000000000000011 /* FuelCalculationService.swift in Sources */,
 				100000000000000000000012 /* HistoryStore.swift in Sources */,
 				100000000000000000000013 /* SettingsStore.swift in Sources */,
+				10000000000000000000001C /* AdMobConfig.swift in Sources */,
+				10000000000000000000001D /* AdMobBannerView.swift in Sources */,
+				10000000000000000000001E /* AdMobNativeAdView.swift in Sources */,
 				100000000000000000000014 /* CalculatorViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -474,6 +494,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Combustivel Flex";
+				INFOPLIST_KEY_GADApplicationIdentifier = "ca-app-pub-1199102836233471~1616819670";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -504,6 +525,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Combustivel Flex";
+				INFOPLIST_KEY_GADApplicationIdentifier = "ca-app-pub-1199102836233471~1616819670";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -603,6 +625,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C10000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C20000000000000000000001 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C10000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 600000000000000000000001 /* Project object */;
 }

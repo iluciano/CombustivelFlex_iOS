@@ -12,7 +12,7 @@ Atualizado em 2026-05-09.
 
 - Não executar testes pelo terminal/Codex neste projeto. O usuário executa testes pelo Xcode.
 - Pode rodar apenas build do app com `xcodebuild build`.
-- Manter SwiftUI moderno, sem dependências externas por enquanto.
+- Manter SwiftUI moderno. Dependência externa atual: Google Mobile Ads via Swift Package Manager.
 - Preservar arquitetura simples por pastas: `Views`, `ViewModels`, `Models`, `Services`, `Components`, `Theme`.
 
 ## Estado Atual
@@ -28,6 +28,9 @@ O app compila e está com o fluxo principal do MVP implementado:
 - Configurações com unidade visual, consumo padrão, notificações, lembrete, avaliar, compartilhar e versão.
 - Consumos padrão de Configurações são carregados automaticamente na tela de cálculo.
 - Ao calcular com consumos diferentes dos padrões salvos, o app pergunta se deve salvar/substituir o padrão.
+- Google AdMob integrado:
+  - banners em Calcular, Resultado, Configurações e Dicas;
+  - anúncio nativo avançado na aba Mais.
 
 ## Validação
 
@@ -66,6 +69,30 @@ Implementada em `CombustivelFlex/Services/FuelCalculationService.swift`.
   - notificações habilitadas;
   - lembrar de revisar preços.
 
+## AdMob
+
+SDK: `GoogleMobileAds` via Swift Package Manager.
+
+App ID configurado no `Info.plist` gerado:
+
+- `ca-app-pub-1199102836233471~1616819670`
+
+Arquivos principais:
+
+- `AdMobConfig.swift`: IDs de anúncios.
+- `AdMobBannerView.swift`: banner SwiftUI com banner adaptativo.
+- `AdMobNativeAdView.swift`: native advanced ad usado na tela Mais.
+
+IDs configurados:
+
+- Calcular: `ca-app-pub-1199102836233471/5444833758`
+- Resultado: `ca-app-pub-1199102836233471/9755164144`
+- Configurações: `ca-app-pub-1199102836233471/9891345223`
+- Dicas: `ca-app-pub-1199102836233471/8394430723`
+- Mais native advanced: `ca-app-pub-1199102836233471/6566343739`
+
+Observação: antes de distribuição, revisar exigências finais do AdMob, consentimento/privacidade e SKAdNetwork conforme documentação vigente.
+
 ## Assets
 
 Assets adicionados:
@@ -103,4 +130,5 @@ Depois disso, próximos blocos naturais:
 - Ajustar App Icon e Launch Screen.
 - Evoluir notificações reais.
 - Implementar avaliação/compartilhamento quando houver links da loja.
+- Validar anúncios em device/simulador pelo Xcode e checar políticas/consentimento AdMob.
 - Preparar primeiro build de distribuição.
