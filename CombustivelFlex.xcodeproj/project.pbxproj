@@ -7,23 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C00000000000000000000001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = C20000000000000000000001 /* GoogleMobileAds */; };
-		A00000000000000000000001 /* FuelCalculationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* FuelCalculationServiceTests.swift */; };
 		100000000000000000000001 /* CombustivelFlexApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* CombustivelFlexApp.swift */; };
 		100000000000000000000002 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000002 /* RootTabView.swift */; };
 		100000000000000000000003 /* CalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000003 /* CalculatorView.swift */; };
 		100000000000000000000004 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000004 /* HistoryView.swift */; };
 		100000000000000000000005 /* StationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000005 /* StationsView.swift */; };
 		100000000000000000000006 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000006 /* MoreView.swift */; };
-		10000000000000000000001A /* TipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001A /* TipsView.swift */; };
-		10000000000000000000001B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001B /* SettingsView.swift */; };
 		100000000000000000000007 /* PlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000007 /* PlaceholderView.swift */; };
-		100000000000000000000016 /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000017 /* StartView.swift */; };
-		100000000000000000000017 /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000018 /* ResultView.swift */; };
 		100000000000000000000008 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000008 /* AppTheme.swift */; };
 		100000000000000000000009 /* AppCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000009 /* AppCard.swift */; };
 		10000000000000000000000A /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000A /* PrimaryButton.swift */; };
-		100000000000000000000019 /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000019 /* SecondaryButton.swift */; };
 		10000000000000000000000B /* FuelTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000B /* FuelTextField.swift */; };
 		10000000000000000000000C /* FeatureRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000C /* FeatureRow.swift */; };
 		10000000000000000000000D /* ResultSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000000D /* ResultSummaryView.swift */; };
@@ -33,11 +26,18 @@
 		100000000000000000000011 /* FuelCalculationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000011 /* FuelCalculationService.swift */; };
 		100000000000000000000012 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000012 /* HistoryStore.swift */; };
 		100000000000000000000013 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000013 /* SettingsStore.swift */; };
+		100000000000000000000014 /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000014 /* CalculatorViewModel.swift */; };
+		100000000000000000000015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000015 /* Assets.xcassets */; };
+		100000000000000000000016 /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000017 /* StartView.swift */; };
+		100000000000000000000017 /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000018 /* ResultView.swift */; };
+		100000000000000000000019 /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000019 /* SecondaryButton.swift */; };
+		10000000000000000000001A /* TipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001A /* TipsView.swift */; };
+		10000000000000000000001B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001B /* SettingsView.swift */; };
 		10000000000000000000001C /* AdMobConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001C /* AdMobConfig.swift */; };
 		10000000000000000000001D /* AdMobBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001D /* AdMobBannerView.swift */; };
 		10000000000000000000001E /* AdMobNativeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001E /* AdMobNativeAdView.swift */; };
-		100000000000000000000014 /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000014 /* CalculatorViewModel.swift */; };
-		100000000000000000000015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000015 /* Assets.xcassets */; };
+		A00000000000000000000001 /* FuelCalculationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* FuelCalculationServiceTests.swift */; };
+		C00000000000000000000001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = C20000000000000000000001 /* GoogleMobileAds */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,23 +51,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A10000000000000000000001 /* FuelCalculationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelCalculationServiceTests.swift; sourceTree = "<group>"; };
-		A10000000000000000000002 /* CombustivelFlexTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CombustivelFlexTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000000000000000000001 /* CombustivelFlexApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombustivelFlexApp.swift; sourceTree = "<group>"; };
 		200000000000000000000002 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		200000000000000000000003 /* CalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorView.swift; sourceTree = "<group>"; };
 		200000000000000000000004 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		200000000000000000000005 /* StationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationsView.swift; sourceTree = "<group>"; };
 		200000000000000000000006 /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
-		20000000000000000000001A /* TipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipsView.swift; sourceTree = "<group>"; };
-		20000000000000000000001B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		200000000000000000000007 /* PlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderView.swift; sourceTree = "<group>"; };
-		200000000000000000000017 /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
-		200000000000000000000018 /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
 		200000000000000000000008 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		200000000000000000000009 /* AppCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCard.swift; sourceTree = "<group>"; };
 		20000000000000000000000A /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
-		200000000000000000000019 /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
 		20000000000000000000000B /* FuelTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelTextField.swift; sourceTree = "<group>"; };
 		20000000000000000000000C /* FeatureRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRow.swift; sourceTree = "<group>"; };
 		20000000000000000000000D /* ResultSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSummaryView.swift; sourceTree = "<group>"; };
@@ -77,13 +70,20 @@
 		200000000000000000000011 /* FuelCalculationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelCalculationService.swift; sourceTree = "<group>"; };
 		200000000000000000000012 /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
 		200000000000000000000013 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		200000000000000000000014 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
+		200000000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		200000000000000000000016 /* CombustivelFlex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CombustivelFlex.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		200000000000000000000017 /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
+		200000000000000000000018 /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
+		200000000000000000000019 /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
+		20000000000000000000001A /* TipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipsView.swift; sourceTree = "<group>"; };
+		20000000000000000000001B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		20000000000000000000001C /* AdMobConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobConfig.swift; sourceTree = "<group>"; };
 		20000000000000000000001D /* AdMobBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobBannerView.swift; sourceTree = "<group>"; };
 		20000000000000000000001E /* AdMobNativeAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobNativeAdView.swift; sourceTree = "<group>"; };
-		200000000000000000000014 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
-		200000000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		20000000000000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		200000000000000000000016 /* CombustivelFlex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CombustivelFlex.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000001 /* FuelCalculationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelCalculationServiceTests.swift; sourceTree = "<group>"; };
+		A10000000000000000000002 /* CombustivelFlexTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CombustivelFlexTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -292,12 +292,12 @@
 				Base,
 			);
 			mainGroup = 400000000000000000000001;
-			productRefGroup = 40000000000000000000000B /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
 			packageReferences = (
 				C10000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
+			productRefGroup = 40000000000000000000000B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				500000000000000000000001 /* CombustivelFlex */,
 				A50000000000000000000001 /* CombustivelFlexTests */,
@@ -492,9 +492,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = WK7S77VS67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CombustivelFlex/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Combustivel Flex";
 				INFOPLIST_KEY_GADApplicationIdentifier = "ca-app-pub-1199102836233471~1616819670";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -503,14 +504,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				INFOPLIST_FILE = CombustivelFlex/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = igorluciano.com.br.combustivelflex.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.igorluciano.combustivelflex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -524,9 +524,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = WK7S77VS67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CombustivelFlex/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Combustivel Flex";
 				INFOPLIST_KEY_GADApplicationIdentifier = "ca-app-pub-1199102836233471~1616819670";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -535,14 +536,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				INFOPLIST_FILE = CombustivelFlex/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = igorluciano.com.br.combustivelflex.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.igorluciano.combustivelflex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -565,7 +565,7 @@
 					"@loader_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = igorluciano.com.br.combustivelflex.ios.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.igorluciano.combustivelflex.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -589,7 +589,7 @@
 					"@loader_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = igorluciano.com.br.combustivelflex.ios.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.igorluciano.combustivelflex.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
