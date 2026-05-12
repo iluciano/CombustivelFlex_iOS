@@ -61,9 +61,7 @@ struct ResultView: View {
                         .stroke(AppTheme.Colors.green.opacity(0.25), lineWidth: 3)
                 }
 
-            Image(systemName: "fuelpump.fill")
-                .font(.system(size: 44, weight: .semibold))
-                .foregroundStyle(AppTheme.Colors.textPrimary)
+            BrandIcon(size: 58)
         }
         .frame(width: 112, height: 112)
     }

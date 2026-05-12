@@ -18,12 +18,21 @@ struct FuelTextField: View {
                     .fill(tint)
                     .frame(width: 10, height: 10)
 
-                TextField(placeholder, text: $text)
+                TextField(
+                    text: $text,
+                    prompt: Text(placeholder)
+                        .foregroundStyle(AppTheme.Colors.textMuted)
+                ) {
+                    Text(placeholder)
+                }
                     .keyboardType(.decimalPad)
                     .textInputAutocapitalization(.never)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+                    .tint(AppTheme.Colors.blue)
                     .focused($isFocused)
-                    .onChange(of: text) { _, newValue in
-                        let maskedValue = NumericInputMask.masked(newValue)
+                    .onChange(of: text) { oldValue, newValue in
+                        let maskedValue = NumericInputMask.masked(newValue, previousValue: oldValue)
 
                         if maskedValue != newValue {
                             text = maskedValue
@@ -42,8 +51,9 @@ struct FuelTextField: View {
 }
 
 enum NumericInputMask {
-    static func masked(_ value: String) -> String {
-        let digits = value.filter(\.isNumber).prefix(4)
+    static func masked(_ value: String, previousValue: String = "") -> String {
+        let valueForMasking = valueForMasking(value, previousValue: previousValue)
+        let digits = valueForMasking.filter(\.isNumber).prefix(4)
 
         guard !digits.isEmpty else {
             return ""
@@ -99,5 +109,38 @@ enum NumericInputMask {
         }
 
         return trimmedValue
+    }
+
+    private static func valueForMasking(_ value: String, previousValue: String) -> String {
+        guard value.count < previousValue.count else {
+            return value
+        }
+
+        if previousValue.hasSuffix("."),
+           value == String(previousValue.dropLast()) {
+            return String(value.dropLast())
+        }
+
+        let previousDigits = previousValue.filter(\.isNumber)
+        let currentDigits = value.filter(\.isNumber)
+
+        guard previousValue.contains("."),
+              !value.contains("."),
+              previousDigits == currentDigits,
+              let separatorIndex = previousValue.firstIndex(of: ".")
+        else {
+            return value
+        }
+
+        let digitsBeforeSeparator = previousValue[..<separatorIndex].filter(\.isNumber).count
+
+        guard digitsBeforeSeparator > 0 else {
+            return value
+        }
+
+        var digits = Array(currentDigits)
+        digits.remove(at: digitsBeforeSeparator - 1)
+
+        return String(digits)
     }
 }

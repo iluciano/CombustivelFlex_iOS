@@ -1,17 +1,17 @@
 # Contexto do Projeto - Combustível Flex iOS
 
-Atualizado em 2026-05-09.
+Atualizado em 2026-05-12.
 
 ## Local
 
 - Repositório: `iluciano/CombustivelFlex_iOS`
-- Caminho local: `/Users/igorluciano/Documents/projetos/CombustivelFlex_iOS`
+- Caminho local: `/Users/iluciano/Documents/projetos/CombustivelFlex_iOS`
 - Branch atual: `main`
 
 ## Regras de Trabalho
 
-- Não executar testes pelo terminal/Codex neste projeto. O usuário executa testes pelo Xcode.
-- Pode rodar apenas build do app com `xcodebuild build`.
+- Pode executar testes pelo terminal/Codex quando necessário.
+- Validar mudanças relevantes com `xcodebuild test` e builds de produção com `xcodebuild build/archive`.
 - Manter SwiftUI moderno. Dependência externa atual: Google Mobile Ads via Swift Package Manager.
 - Preservar arquitetura simples por pastas: `Views`, `ViewModels`, `Models`, `Services`, `Components`, `Theme`.
 
@@ -32,6 +32,10 @@ O app compila e está com o fluxo principal do MVP implementado:
   - banners em Calcular, Resultado, Configurações e Dicas;
   - anúncio nativo avançado na aba Mais.
 - Banners ficam alinhados acima do menu do rodapé.
+- Anúncios só ocupam espaço quando carregados; quando o AdMob não entrega criativo, a UI não exibe bloco branco.
+- Rodapé com cores adaptativas para modo claro/escuro.
+- Inputs numéricos com texto escuro explícito e máscara ajustada para permitir apagar naturalmente.
+- Configurações não exibem consumos padrão falsos; os cards ficam sem valor até o usuário salvar.
 - iPhone travado em portrait para preservar o layout atual.
 - Bundle Identifier configurado para App Store: `br.com.igorluciano.combustivelflex`.
 - Team configurado no projeto Xcode: `WK7S77VS67`.
@@ -40,18 +44,20 @@ O app compila e está com o fluxo principal do MVP implementado:
 
 ## Validação
 
-Build validado por Codex:
+Builds/testes validados por Codex:
 
 ```bash
-xcodebuild build -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -destination 'generic/platform=iOS Simulator' -quiet
+xcodebuild test -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -destination 'platform=iOS Simulator,name=iPhone 17' -quiet
+xcodebuild build -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -quiet
+xcodebuild archive -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -archivePath build/CombustivelFlex-1.0.1.xcarchive -quiet
 ```
 
 Testes:
 
 - Existe target `CombustivelFlexTests`.
 - Existe `FuelCalculationServiceTests`.
-- Testes unitários passaram quando executados pelo usuário no Xcode.
-- Não rodar `xcodebuild test` pelo terminal, pois travou o sistema anteriormente.
+- Existe `NumericInputMaskTests`.
+- Testes unitários passaram via terminal no simulador `iPhone 17`.
 
 ## Preparação App Store
 
@@ -87,12 +93,12 @@ No Mac novo:
    - `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`;
    - `Assets.xcassets/AppIcon.appiconset` possui `AppIcon-1024x1024@1x.png`.
 
-Versão atual:
+Versão atual preparada para produção:
 
-- `MARKETING_VERSION = 1.0`
-- `CURRENT_PROJECT_VERSION = 1`
+- `MARKETING_VERSION = 1.0.1`
+- `CURRENT_PROJECT_VERSION = 2`
 
-Antes de reenviar novo build após rejeição/novo upload, incrementar `CURRENT_PROJECT_VERSION` se o App Store Connect exigir build number novo.
+Archive local gerado em `build/CombustivelFlex-1.0.1.xcarchive`.
 
 ## Regra de Cálculo
 
@@ -127,8 +133,8 @@ App ID configurado em `CombustivelFlex/Info.plist` explícito:
 Arquivos principais:
 
 - `AdMobConfig.swift`: IDs de anúncios.
-- `AdMobBannerView.swift`: banner SwiftUI com banner adaptativo, `rootViewController` explícito e rodapé reservado acima da tab bar.
-- `AdMobNativeAdView.swift`: native advanced ad usado na tela Mais com `MediaView` de 120x120 para atender ao validator do Google.
+- `AdMobBannerView.swift`: banner SwiftUI com banner adaptativo, `rootViewController` explícito, carregamento protegido e espaço reservado apenas quando há anúncio carregado.
+- `AdMobNativeAdView.swift`: native advanced ad usado na tela Mais com `MediaView` de 120x120, carregamento protegido e espaço reservado apenas quando há anúncio carregado.
 
 IDs configurados:
 
@@ -175,6 +181,7 @@ Validar manualmente no simulador/Xcode:
 3. Configurações -> consumo padrão -> Calculadora.
 4. Cálculo -> pergunta para salvar/substituir consumo padrão -> Resultado -> Recalcular.
 5. AdMob validator nas telas com anúncios, especialmente aba Mais.
+6. Modo claro/escuro do rodapé.
 
 Depois disso, próximos blocos naturais:
 
@@ -182,4 +189,4 @@ Depois disso, próximos blocos naturais:
 - Evoluir notificações reais.
 - Implementar avaliação/compartilhamento quando houver links da loja.
 - Validar anúncios em device/simulador pelo Xcode e checar políticas/consentimento AdMob.
-- Preparar primeiro build de distribuição.
+- Enviar versão `1.0.1 (2)` para App Store Connect.

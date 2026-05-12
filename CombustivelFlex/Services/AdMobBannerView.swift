@@ -4,22 +4,35 @@ import UIKit
 
 struct AdMobBannerView: View {
     let adUnitID: String
+    @State private var isLoaded = false
 
     var body: some View {
-        GeometryReader { proxy in
-            let adSize = largeAnchoredAdaptiveBanner(width: proxy.size.width)
+        VStack(spacing: 0) {
+            GeometryReader { proxy in
+                let adSize = largeAnchoredAdaptiveBanner(width: proxy.size.width)
 
-            BannerViewContainer(adUnitID: adUnitID, adSize: adSize)
-                .frame(width: adSize.size.width, height: adSize.size.height)
-                .frame(maxWidth: .infinity)
+                BannerViewContainer(
+                    adUnitID: adUnitID,
+                    adSize: adSize,
+                    isLoaded: $isLoaded
+                )
+                    .frame(width: adSize.size.width, height: adSize.size.height)
+                    .frame(maxWidth: .infinity)
+                    .opacity(isLoaded ? 1 : 0)
+            }
+            .frame(height: isLoaded ? 60 : 0)
+            .background(AppTheme.Colors.surface)
+
+            if isLoaded {
+                Color.clear
+                    .frame(height: AdMobFooterLayout.tabBarClearance)
+            }
         }
-        .frame(height: 60)
-        .background(AppTheme.Colors.surface)
     }
 }
 
 private enum AdMobFooterLayout {
-    static let tabBarClearance: CGFloat = 72
+    static let tabBarClearance: CGFloat = 88
 }
 
 extension View {
@@ -44,25 +57,25 @@ private struct AdMobFooterContainer<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(spacing: 0) {
-            content
-
-            Color.clear
-                .frame(height: AdMobFooterLayout.tabBarClearance)
-        }
-        .background(AppTheme.Colors.surface)
+        content
     }
 }
 
 private struct BannerViewContainer: UIViewRepresentable {
     let adUnitID: String
     let adSize: AdSize
+    @Binding var isLoaded: Bool
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(isLoaded: $isLoaded)
+    }
 
     func makeUIView(context: Context) -> BannerView {
         let bannerView = BannerView(adSize: adSize)
         bannerView.adUnitID = adUnitID
+        bannerView.delegate = context.coordinator
         bannerView.rootViewController = AdMobPresentationContext.rootViewController
-        bannerView.load(Request())
+        loadAdIfPossible(in: bannerView, coordinator: context.coordinator)
         return bannerView
     }
 
@@ -72,7 +85,56 @@ private struct BannerViewContainer: UIViewRepresentable {
 
         if uiView.adUnitID != adUnitID {
             uiView.adUnitID = adUnitID
-            uiView.load(Request())
+            context.coordinator.reset()
+        }
+
+        loadAdIfPossible(in: uiView, coordinator: context.coordinator)
+    }
+
+    private func loadAdIfPossible(in bannerView: BannerView, coordinator: Coordinator) {
+        guard bannerView.rootViewController != nil else {
+            guard !coordinator.didScheduleRootRetry else {
+                return
+            }
+
+            coordinator.didScheduleRootRetry = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                coordinator.didScheduleRootRetry = false
+                bannerView.rootViewController = AdMobPresentationContext.rootViewController
+                loadAdIfPossible(in: bannerView, coordinator: coordinator)
+            }
+            return
+        }
+
+        guard !coordinator.didRequestAd else {
+            return
+        }
+
+        coordinator.didRequestAd = true
+        bannerView.load(Request())
+    }
+
+    final class Coordinator: NSObject, BannerViewDelegate {
+        var didRequestAd = false
+        var didScheduleRootRetry = false
+        @Binding private var isLoaded: Bool
+
+        init(isLoaded: Binding<Bool>) {
+            _isLoaded = isLoaded
+        }
+
+        func reset() {
+            didRequestAd = false
+            didScheduleRootRetry = false
+            isLoaded = false
+        }
+
+        func bannerViewDidReceiveAd(_ bannerView: BannerView) {
+            isLoaded = true
+        }
+
+        func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
+            isLoaded = false
         }
     }
 }

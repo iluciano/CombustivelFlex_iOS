@@ -165,16 +165,18 @@ private extension StartActionItem {
 }
 
 struct BrandIcon: View {
+    var size: CGFloat = 36
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
                 .fill(AppTheme.Colors.blue)
 
             Image(systemName: "fuelpump.fill")
-                .font(.title3.weight(.bold))
+                .font(.system(size: size * 0.58, weight: .bold))
                 .foregroundStyle(.white)
         }
-        .frame(width: 36, height: 36)
+        .frame(width: size, height: size)
     }
 }
 

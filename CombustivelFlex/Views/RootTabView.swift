@@ -1,10 +1,15 @@
 import SwiftUI
+import UIKit
 
 struct RootTabView: View {
     @State private var selectedTab = AppTab.home
     @State private var homePath = NavigationPath()
     @StateObject private var historyStore = HistoryStore()
     @StateObject private var settingsStore = SettingsStore()
+
+    init() {
+        configureTabBarAppearance()
+    }
 
     var body: some View {
         TabView(selection: selectedTabBinding) {
@@ -78,6 +83,43 @@ struct RootTabView: View {
         selectedTab == tab ? tab.selectedSystemImage : tab.systemImage
     }
 
+    private func configureTabBarAppearance() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = .clear
+        appearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterial)
+        appearance.shadowColor = .clear
+
+        let selectedColor = UIColor.tabBarSelected
+        let unselectedColor = UIColor.tabBarUnselected
+        let selectedAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: selectedColor,
+            .font: UIFont.systemFont(ofSize: 11, weight: .semibold)
+        ]
+        let unselectedAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: unselectedColor,
+            .font: UIFont.systemFont(ofSize: 11, weight: .medium)
+        ]
+
+        [
+            appearance.stackedLayoutAppearance,
+            appearance.inlineLayoutAppearance,
+            appearance.compactInlineLayoutAppearance
+        ].forEach { itemAppearance in
+            itemAppearance.selected.iconColor = selectedColor
+            itemAppearance.selected.titleTextAttributes = selectedAttributes
+            itemAppearance.normal.iconColor = unselectedColor
+            itemAppearance.normal.titleTextAttributes = unselectedAttributes
+        }
+
+        let tabBarAppearance = UITabBar.appearance()
+        tabBarAppearance.standardAppearance = appearance
+        tabBarAppearance.scrollEdgeAppearance = appearance
+        tabBarAppearance.tintColor = selectedColor
+        tabBarAppearance.unselectedItemTintColor = unselectedColor
+        tabBarAppearance.isTranslucent = true
+    }
+
     @ViewBuilder
     private func destination(for route: HomeRoute) -> some View {
         switch route {
@@ -93,4 +135,23 @@ struct RootTabView: View {
 
 #Preview {
     RootTabView()
+}
+
+private extension UIColor {
+    static let tabBarSelected = UIColor(hex: 0x1473F8)
+
+    static let tabBarUnselected = UIColor { traitCollection in
+        traitCollection.userInterfaceStyle == .dark
+            ? UIColor(white: 1, alpha: 0.86)
+            : UIColor(hex: 0x101828)
+    }
+
+    convenience init(hex: UInt, alpha: CGFloat = 1) {
+        self.init(
+            red: CGFloat((hex >> 16) & 0xFF) / 255,
+            green: CGFloat((hex >> 8) & 0xFF) / 255,
+            blue: CGFloat(hex & 0xFF) / 255,
+            alpha: alpha
+        )
+    }
 }

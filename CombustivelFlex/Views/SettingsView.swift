@@ -32,16 +32,14 @@ struct SettingsView: View {
                     HStack(spacing: AppTheme.Spacing.medium) {
                         ConsumptionCard(
                             title: "Gasolina",
-                            value: settingsStore.gasolineConsumption,
-                            fallback: "10,0 km/L"
+                            value: settingsStore.gasolineConsumption
                         ) {
                             editingFuel = .gasoline
                         }
 
                         ConsumptionCard(
                             title: "Etanol",
-                            value: settingsStore.ethanolConsumption,
-                            fallback: "7,0 km/L"
+                            value: settingsStore.ethanolConsumption
                         ) {
                             editingFuel = .ethanol
                         }
@@ -141,7 +139,6 @@ private struct UnitButton: View {
 private struct ConsumptionCard: View {
     let title: String
     let value: String
-    let fallback: String
     let action: () -> Void
 
     var body: some View {
@@ -152,9 +149,11 @@ private struct ConsumptionCard: View {
                         .font(.headline)
                         .foregroundStyle(AppTheme.Colors.textPrimary)
 
-                    Text(displayValue)
-                        .font(.body)
-                        .foregroundStyle(AppTheme.Colors.textPrimary)
+                    if !value.isEmpty {
+                        Text(displayValue)
+                            .font(.body)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+                    }
                 }
 
                 Spacer()
@@ -178,7 +177,7 @@ private struct ConsumptionCard: View {
     }
 
     private var displayValue: String {
-        value.isEmpty ? fallback : "\(value.replacingOccurrences(of: ".", with: ",")) km/L"
+        "\(value.replacingOccurrences(of: ".", with: ",")) km/L"
     }
 }
 

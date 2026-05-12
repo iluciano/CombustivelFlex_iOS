@@ -7,6 +7,8 @@ final class NativeAdViewModel: NSObject, ObservableObject {
 
     private let adUnitID: String
     private var adLoader: AdLoader?
+    private var didRequestAd = false
+    private var didScheduleRootRetry = false
 
     init(adUnitID: String) {
         self.adUnitID = adUnitID
@@ -14,15 +16,38 @@ final class NativeAdViewModel: NSObject, ObservableObject {
     }
 
     func load() {
+        guard !didRequestAd else {
+            return
+        }
+
+        guard let rootViewController = AdMobPresentationContext.rootViewController else {
+            scheduleLoadRetry()
+            return
+        }
+
+        didRequestAd = true
         let loader = AdLoader(
             adUnitID: adUnitID,
-            rootViewController: AdMobPresentationContext.rootViewController,
+            rootViewController: rootViewController,
             adTypes: [.native],
             options: nil
         )
         loader.delegate = self
         loader.load(Request())
         adLoader = loader
+    }
+
+    private func scheduleLoadRetry() {
+        guard !didScheduleRootRetry else {
+            return
+        }
+
+        didScheduleRootRetry = true
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(200))
+            didScheduleRootRetry = false
+            load()
+        }
     }
 }
 
@@ -34,6 +59,10 @@ extension NativeAdViewModel: NativeAdLoaderDelegate {
     }
 
     nonisolated func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) {
+        Task { @MainActor in
+            self.nativeAd = nil
+        }
+
         #if DEBUG
         print("Native ad failed to load: \(error.localizedDescription)")
         #endif
@@ -48,13 +77,25 @@ struct AdMobNativeAdView: View {
     }
 
     var body: some View {
-        NativeAdContainer(viewModel: viewModel)
-            .frame(height: 144)
-            .background(AppTheme.Colors.surface)
-            .task {
-                viewModel.load()
+        VStack(spacing: 0) {
+            NativeAdContainer(viewModel: viewModel)
+                .frame(height: viewModel.nativeAd == nil ? 0 : 144)
+                .background(AppTheme.Colors.surface)
+                .opacity(viewModel.nativeAd == nil ? 0 : 1)
+
+            if viewModel.nativeAd != nil {
+                Color.clear
+                    .frame(height: AdMobNativeFooterLayout.tabBarClearance)
             }
+        }
+        .task {
+            viewModel.load()
+        }
     }
+}
+
+private enum AdMobNativeFooterLayout {
+    static let tabBarClearance: CGFloat = 88
 }
 
 private struct NativeAdContainer: UIViewRepresentable {
