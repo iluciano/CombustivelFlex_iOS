@@ -101,5 +101,23 @@
    <ArchiveAction
       buildConfiguration = "Release"
       revealArchiveInOrganizer = "YES">
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Add Google SDK dSYMs"
+               scriptText = "&quot;${PROJECT_DIR}/scripts/add_google_dsyms_to_archive.sh&quot; &quot;${ARCHIVE_PATH}&quot;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "500000000000000000000001"
+                     BuildableName = "CombustivelFlex.app"
+                     BlueprintName = "CombustivelFlex"
+                     ReferencedContainer = "container:CombustivelFlex.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
    </ArchiveAction>
 </Scheme>
