@@ -7,6 +7,7 @@ Atualizado em 2026-05-12.
 - Repositório: `iluciano/CombustivelFlex_iOS`
 - Caminho local: `/Users/iluciano/Documents/projetos/CombustivelFlex_iOS`
 - Branch atual: `main`
+- Último commit remoto conhecido: `661e57e Add Google SDK dSYM archive fix`
 
 ## Regras de Trabalho
 
@@ -59,6 +60,14 @@ Testes:
 - Existe `NumericInputMaskTests`.
 - Testes unitários passaram via terminal no simulador `iPhone 17`.
 
+Archive:
+
+- `build/CombustivelFlex-1.0.1.xcarchive` foi gerado com sucesso.
+- O archive contém dSYMs do app e dos frameworks Google:
+  - `CombustivelFlex.app.dSYM`
+  - `GoogleMobileAds.framework.dSYM`
+  - `UserMessagingPlatform.framework.dSYM`
+
 ## Preparação App Store
 
 Status em 2026-05-09:
@@ -88,8 +97,9 @@ No Mac novo:
    - anúncios não sobrepõem a tab bar;
    - tela Mais não acusa problemas no AdMob native validator.
 7. Fazer `Product > Archive`.
-8. No Organizer, validar e enviar para App Store Connect.
-9. Se houver erro de ícone no App Store Connect, confirmar no target:
+8. Confirmar no archive os dSYMs de `GoogleMobileAds.framework` e `UserMessagingPlatform.framework`.
+9. No Organizer, validar e enviar para App Store Connect.
+10. Se houver erro de ícone no App Store Connect, confirmar no target:
    - `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`;
    - `Assets.xcassets/AppIcon.appiconset` possui `AppIcon-1024x1024@1x.png`.
 
@@ -99,6 +109,17 @@ Versão atual preparada para produção:
 - `CURRENT_PROJECT_VERSION = 2`
 
 Archive local gerado em `build/CombustivelFlex-1.0.1.xcarchive`.
+
+Observação sobre dSYMs:
+
+- O Swift Package do Google Mobile Ads não inclui dSYMs prontos nos XCFrameworks baixados.
+- O script `scripts/add_google_dsyms_to_archive.sh` gera dSYMs compatíveis a partir dos binários dentro do archive.
+- O scheme compartilhado `CombustivelFlex.xcscheme` possui Post-action de Archive chamando esse script.
+- Se o Organizer ainda acusar dSYM ausente, rodar manualmente:
+
+```bash
+scripts/add_google_dsyms_to_archive.sh build/CombustivelFlex-1.0.1.xcarchive
+```
 
 ## Regra de Cálculo
 
@@ -135,6 +156,7 @@ Arquivos principais:
 - `AdMobConfig.swift`: IDs de anúncios.
 - `AdMobBannerView.swift`: banner SwiftUI com banner adaptativo, `rootViewController` explícito, carregamento protegido e espaço reservado apenas quando há anúncio carregado.
 - `AdMobNativeAdView.swift`: native advanced ad usado na tela Mais com `MediaView` de 120x120, carregamento protegido e espaço reservado apenas quando há anúncio carregado.
+- `scripts/add_google_dsyms_to_archive.sh`: pós-processa o `.xcarchive` para incluir dSYMs do `GoogleMobileAds.framework` e `UserMessagingPlatform.framework`.
 
 IDs configurados:
 
