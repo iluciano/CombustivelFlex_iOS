@@ -8,47 +8,53 @@ struct ResultView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: AppTheme.Spacing.large) {
-                VStack(spacing: AppTheme.Spacing.medium) {
-                    fuelIcon
+            PageCard {
+                VStack(spacing: AppTheme.Spacing.large) {
+                    VStack(spacing: AppTheme.Spacing.medium) {
+                        fuelIcon
 
-                    Text("O melhor combustível\npara o seu carro é:")
-                        .font(.title3.bold())
-                        .foregroundStyle(AppTheme.Colors.textPrimary)
-                        .multilineTextAlignment(.center)
-
-                    Text(result.recommendedFuel.displayName)
-                        .font(.system(size: 38, weight: .bold))
-                        .foregroundStyle(recommendedColor)
-
-                    CarIllustration()
-                        .frame(width: 190, height: 72)
-
-                    VStack(spacing: AppTheme.Spacing.small) {
-                        Text("Economia estimada:")
-                            .font(.headline)
+                        Text("O melhor combustível\npara o seu carro é:")
+                            .font(.title3.bold())
                             .foregroundStyle(AppTheme.Colors.textPrimary)
+                            .multilineTextAlignment(.center)
 
-                        Text("\(currency(result.estimatedSavings)) \(savingsUnit)")
-                            .font(.title2.bold())
+                        Text(result.recommendedFuel.displayName)
+                            .font(.system(size: 38, weight: .bold))
                             .foregroundStyle(recommendedColor)
+
+                        CarIllustration()
+                            .frame(width: 190, height: 72)
+
+                        VStack(spacing: AppTheme.Spacing.small) {
+                            Text("Economia estimada:")
+                                .font(.headline)
+                                .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                            Text("\(currency(result.estimatedSavings)) \(savingsUnit)")
+                                .font(.title2.bold())
+                                .foregroundStyle(recommendedColor)
+                        }
+                        .padding(.top, AppTheme.Spacing.small)
                     }
-                    .padding(.top, AppTheme.Spacing.small)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, AppTheme.Spacing.large)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, AppTheme.Spacing.large)
 
-                comparisonSection
+                    comparisonSection
 
-                PrimaryButton(title: "Recalcular") {
-                    onRecalculate()
-                    dismiss()
+                    PrimaryButton(title: "Recalcular") {
+                        onRecalculate()
+                        dismiss()
+                    }
+
+                    AdMobBannerView(adUnitID: AdMobConfig.Banner.result, reservesTabBarClearance: false)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
                 }
             }
-            .padding(AppTheme.Spacing.large)
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
         }
         .background(AppTheme.Colors.background)
-        .adMobBannerFooter(adUnitID: AdMobConfig.Banner.result)
         .toolbar(.hidden, for: .navigationBar)
     }
 

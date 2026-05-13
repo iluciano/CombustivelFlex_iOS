@@ -4,6 +4,7 @@ import UIKit
 
 struct AdMobBannerView: View {
     let adUnitID: String
+    var reservesTabBarClearance = true
     @State private var isLoaded = false
 
     var body: some View {
@@ -23,7 +24,7 @@ struct AdMobBannerView: View {
             .frame(height: isLoaded ? 60 : 0)
             .background(AppTheme.Colors.surface)
 
-            if isLoaded {
+            if isLoaded && reservesTabBarClearance {
                 Color.clear
                     .frame(height: AdMobFooterLayout.tabBarClearance)
             }
@@ -39,7 +40,7 @@ extension View {
     func adMobBannerFooter(adUnitID: String) -> some View {
         safeAreaInset(edge: .bottom, spacing: 0) {
             AdMobFooterContainer {
-                AdMobBannerView(adUnitID: adUnitID)
+                AdMobBannerView(adUnitID: adUnitID, reservesTabBarClearance: true)
             }
         }
     }
@@ -47,7 +48,7 @@ extension View {
     func adMobNativeFooter(adUnitID: String) -> some View {
         safeAreaInset(edge: .bottom, spacing: 0) {
             AdMobFooterContainer {
-                AdMobNativeAdView(adUnitID: adUnitID)
+                AdMobNativeAdView(adUnitID: adUnitID, reservesTabBarClearance: true)
             }
         }
     }
@@ -111,7 +112,9 @@ private struct BannerViewContainer: UIViewRepresentable {
         }
 
         coordinator.didRequestAd = true
-        bannerView.load(Request())
+        AdMobStartup.shared.whenReady {
+            bannerView.load(Request())
+        }
     }
 
     final class Coordinator: NSObject, BannerViewDelegate {
@@ -135,6 +138,48 @@ private struct BannerViewContainer: UIViewRepresentable {
 
         func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
             isLoaded = false
+        }
+    }
+}
+
+final class AdMobStartup {
+    static let shared = AdMobStartup()
+
+    private var isStarted = false
+    private var isStarting = false
+    private var completions: [() -> Void] = []
+
+    private init() {}
+
+    func start() {
+        DispatchQueue.main.async {
+            guard !self.isStarted, !self.isStarting else {
+                return
+            }
+
+            self.isStarting = true
+            MobileAds.shared.start { _ in
+                DispatchQueue.main.async {
+                    self.isStarted = true
+                    self.isStarting = false
+
+                    let completions = self.completions
+                    self.completions.removeAll()
+                    completions.forEach { $0() }
+                }
+            }
+        }
+    }
+
+    func whenReady(_ completion: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            if self.isStarted {
+                completion()
+                return
+            }
+
+            self.completions.append(completion)
+            self.start()
         }
     }
 }

@@ -2,80 +2,101 @@ import SwiftUI
 import UserNotifications
 
 struct SettingsView: View {
+    @Environment(\.openURL) private var openURL
     @EnvironmentObject private var settingsStore: SettingsStore
     @State private var editingFuel: EditableFuel?
 
+    private let appStoreURL = URL(string: "https://apps.apple.com/us/app/combustivel-flex/id6767881794")!
+    private let appReviewURL = URL(string: "itms-apps://itunes.apple.com/app/id6767881794?action=write-review")!
+    private let appWebsiteURL = URL(string: "https://igorluciano.com.br/combustivelflex")!
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
-                Text("Configurações")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(AppTheme.Colors.textPrimary)
-                    .padding(.top, AppTheme.Spacing.large)
-
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
-                    Text("Unidade de medida")
-                        .font(.headline)
+            PageCard {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                    Text("Configurações")
+                        .font(.system(size: 34, weight: .bold))
                         .foregroundStyle(AppTheme.Colors.textPrimary)
 
-                    HStack(spacing: AppTheme.Spacing.medium) {
-                        UnitButton(title: "R$/L (litro)", unit: .liter)
-                        UnitButton(title: "R$/km", unit: .kilometer)
-                    }
-                }
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
+                        Text("Unidade de medida")
+                            .font(.headline)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
-                    Text("Consumo padrão do meu carro")
-                        .font(.headline)
-                        .foregroundStyle(AppTheme.Colors.textPrimary)
-
-                    HStack(spacing: AppTheme.Spacing.medium) {
-                        ConsumptionCard(
-                            title: "Gasolina",
-                            value: settingsStore.gasolineConsumption
-                        ) {
-                            editingFuel = .gasoline
-                        }
-
-                        ConsumptionCard(
-                            title: "Etanol",
-                            value: settingsStore.ethanolConsumption
-                        ) {
-                            editingFuel = .ethanol
+                        HStack(spacing: AppTheme.Spacing.medium) {
+                            UnitButton(title: "R$/L (litro)", unit: .liter)
+                            UnitButton(title: "R$/km", unit: .kilometer)
                         }
                     }
-                }
 
-                VStack(spacing: 0) {
-                    SettingsToggleRow(
-                        title: "Notificações",
-                        isOn: notificationsBinding
-                    )
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
+                        Text("Consumo padrão do meu carro")
+                            .font(.headline)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
 
-                    SettingsDivider()
+                        HStack(spacing: AppTheme.Spacing.medium) {
+                            ConsumptionCard(
+                                title: "Gasolina",
+                                value: settingsStore.gasolineConsumption
+                            ) {
+                                editingFuel = .gasoline
+                            }
 
-                    SettingsToggleRow(
-                        title: "Lembrar de revisar preços",
-                        isOn: $settingsStore.priceReminderEnabled
-                    )
+                            ConsumptionCard(
+                                title: "Etanol",
+                                value: settingsStore.ethanolConsumption
+                            ) {
+                                editingFuel = .ethanol
+                            }
+                        }
+                    }
 
-                    SettingsDivider()
+                    VStack(spacing: 0) {
+                        SettingsToggleRow(
+                            title: "Notificações",
+                            isOn: notificationsBinding
+                        )
 
-                    SettingsNavigationRow(title: "Avaliar o app")
+                        SettingsDivider()
 
-                    SettingsDivider()
+                        SettingsToggleRow(
+                            title: "Lembrar de revisar preços",
+                            isOn: $settingsStore.priceReminderEnabled
+                        )
 
-                    SettingsNavigationRow(title: "Compartilhar com amigos")
+                        SettingsDivider()
 
-                    SettingsDivider()
+                        SettingsNavigationRow(title: "Avaliar o app") {
+                            openURL(appReviewURL)
+                        }
 
-                    SettingsNavigationRow(title: "Sobre o Combustível Flex", subtitle: "Versão 1.0")
+                        SettingsDivider()
+
+                        ShareLink(
+                            item: appStoreURL,
+                            subject: Text("Combustível Flex"),
+                            message: Text("Conheça o Combustível Flex: \(appStoreURL.absoluteString)")
+                        ) {
+                            SettingsNavigationRowLabel(title: "Compartilhar com amigos")
+                        }
+                        .buttonStyle(.plain)
+
+                        SettingsDivider()
+
+                        SettingsNavigationRow(title: "Sobre o Combustível Flex", subtitle: "Versão 1.0.2") {
+                            openURL(appWebsiteURL)
+                        }
+                    }
+
+                    AdMobBannerView(adUnitID: AdMobConfig.Banner.settings, reservesTabBarClearance: false)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
                 }
             }
-            .padding(AppTheme.Spacing.large)
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
         }
         .background(AppTheme.Colors.background)
-        .adMobBannerFooter(adUnitID: AdMobConfig.Banner.settings)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(item: $editingFuel) { fuel in
             ConsumptionEditorView(fuel: fuel)
@@ -197,32 +218,41 @@ private struct SettingsToggleRow: View {
 private struct SettingsNavigationRow: View {
     let title: String
     var subtitle: String?
+    let action: () -> Void
 
     var body: some View {
-        Button {
-        } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.headline)
-                        .foregroundStyle(AppTheme.Colors.textPrimary)
-
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(AppTheme.Colors.textMuted)
-                    }
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(AppTheme.Colors.textMuted)
-            }
-            .padding(.vertical, AppTheme.Spacing.large)
+        Button(action: action) {
+            SettingsNavigationRowLabel(title: title, subtitle: subtitle)
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct SettingsNavigationRowLabel: View {
+    let title: String
+    var subtitle: String?
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(AppTheme.Colors.textMuted)
+                }
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.textMuted)
+        }
+        .padding(.vertical, AppTheme.Spacing.large)
     }
 }
 

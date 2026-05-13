@@ -5,26 +5,30 @@ struct HistoryView: View {
     @State private var shouldConfirmClear = false
 
     var body: some View {
-        Group {
-            if historyStore.items.isEmpty {
-                PlaceholderView(
-                    title: "Histórico de cálculos",
-                    message: "Os cálculos salvos neste aparelho vão aparecer aqui.",
-                    systemImage: "clock.arrow.circlepath"
-                )
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: AppTheme.Spacing.medium) {
-                        ForEach(historyStore.items) { item in
-                            HistoryItemView(item: item)
+        ScrollView {
+            PageCard {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                    Text("Histórico")
+                        .font(.system(size: 34, weight: .bold))
+                        .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                    if historyStore.items.isEmpty {
+                        emptyState
+                    } else {
+                        VStack(spacing: AppTheme.Spacing.medium) {
+                            ForEach(historyStore.items) { item in
+                                HistoryItemView(item: item)
+                            }
                         }
                     }
-                    .padding(AppTheme.Spacing.large)
                 }
-                .background(AppTheme.Colors.background)
             }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
         }
-        .navigationTitle("Histórico")
+        .background(AppTheme.Colors.background)
+        .toolbar(.hidden, for: .navigationBar)
         .toolbar {
             if !historyStore.items.isEmpty {
                 Button("Limpar") {
@@ -41,6 +45,26 @@ struct HistoryView: View {
                 historyStore.clear()
             }
         }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: AppTheme.Spacing.medium) {
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.system(size: 44, weight: .semibold))
+                .foregroundStyle(AppTheme.Colors.blue)
+
+            Text("Histórico de cálculos")
+                .font(.title2.bold())
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+
+            Text("Os cálculos salvos neste aparelho vão aparecer aqui.")
+                .font(.body)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+                .padding(.horizontal, AppTheme.Spacing.large)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, AppTheme.Spacing.large)
     }
 }
 

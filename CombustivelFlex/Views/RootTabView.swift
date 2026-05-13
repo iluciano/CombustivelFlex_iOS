@@ -145,13 +145,4 @@ private extension UIColor {
             ? UIColor(white: 1, alpha: 0.86)
             : UIColor(hex: 0x101828)
     }
-
-    convenience init(hex: UInt, alpha: CGFloat = 1) {
-        self.init(
-            red: CGFloat((hex >> 16) & 0xFF) / 255,
-            green: CGFloat((hex >> 8) & 0xFF) / 255,
-            blue: CGFloat(hex & 0xFF) / 255,
-            alpha: alpha
-        )
-    }
 }

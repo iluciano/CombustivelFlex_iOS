@@ -4,7 +4,7 @@ import GoogleMobileAds
 @main
 struct CombustivelFlexApp: App {
     init() {
-        MobileAds.shared.start()
+        AdMobStartup.shared.start()
     }
 
     var body: some Scene {

@@ -1,13 +1,13 @@
 # Contexto do Projeto - Combustível Flex iOS
 
-Atualizado em 2026-05-12.
+Atualizado em 2026-05-13.
 
 ## Local
 
 - Repositório: `iluciano/CombustivelFlex_iOS`
 - Caminho local: `/Users/iluciano/Documents/projetos/CombustivelFlex_iOS`
 - Branch atual: `main`
-- Último commit remoto conhecido: `661e57e Add Google SDK dSYM archive fix`
+- Último commit remoto conhecido: `97cc7c0 Update production context`
 
 ## Regras de Trabalho
 
@@ -21,22 +21,24 @@ Atualizado em 2026-05-12.
 O app compila e está com o fluxo principal do MVP implementado:
 
 - Tela inicial com imagem real de estrada no topo e menu estilo Android.
-- Tela de cálculo com imagem real no topo, máscara nos inputs, botão `Calcular` e botão `Limpar`.
-- Resultado em tela própria, com botão `Recalcular` limpando os campos ao voltar para cálculo.
-- Histórico local funcionando, incluindo limpar histórico.
+- Tela de cálculo com imagem real no topo, card principal, máscara nos inputs, botão `Calcular`, botão `Limpar` e banner dentro do card.
+- Resultado em tela própria dentro de card, com botão `Recalcular` limpando os campos ao voltar para cálculo e banner dentro do card.
+- Histórico local funcionando dentro de card, incluindo limpar histórico.
 - Postos próximos com tela “em breve” e imagem própria.
-- Dicas de economia com cards estilo Android.
-- Configurações com unidade visual, consumo padrão, notificações, lembrete, avaliar, compartilhar e versão.
+- Dicas de economia dentro de card principal, com cards estilo Android e banner dentro do card.
+- Configurações dentro de card principal, com unidade visual, consumo padrão, notificações, lembrete, avaliar, compartilhar, versão e banner dentro do card.
 - Consumos padrão de Configurações são carregados automaticamente na tela de cálculo.
 - Ao calcular com consumos diferentes dos padrões salvos, o app pergunta se deve salvar/substituir o padrão.
 - Google AdMob integrado:
-  - banners em Calcular, Resultado, Configurações e Dicas;
-  - anúncio nativo avançado na aba Mais.
-- Banners ficam alinhados acima do menu do rodapé.
+- banners em Calcular, Resultado, Configurações e Dicas, dentro do card principal de cada tela;
+  - anúncio nativo avançado na aba Mais, dentro do card principal.
+- Postos próximos não usa o padrão de card principal por decisão de layout.
 - Anúncios só ocupam espaço quando carregados; quando o AdMob não entrega criativo, a UI não exibe bloco branco.
 - Rodapé com cores adaptativas para modo claro/escuro.
 - Inputs numéricos com texto escuro explícito e máscara ajustada para permitir apagar naturalmente.
 - Configurações não exibem consumos padrão falsos; os cards ficam sem valor até o usuário salvar.
+- Tela Mais usa cards separados no estilo Android, com contraste próprio em modo claro/escuro.
+- AdMob aguarda a inicialização do SDK antes de chamar `load` em banners e native advanced.
 - iPhone travado em portrait para preservar o layout atual.
 - Bundle Identifier configurado para App Store: `br.com.igorluciano.combustivelflex`.
 - Team configurado no projeto Xcode: `WK7S77VS67`.
@@ -50,7 +52,7 @@ Builds/testes validados por Codex:
 ```bash
 xcodebuild test -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -destination 'platform=iOS Simulator,name=iPhone 17' -quiet
 xcodebuild build -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -quiet
-xcodebuild archive -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -archivePath build/CombustivelFlex-1.0.1.xcarchive -quiet
+xcodebuild archive -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -archivePath build/CombustivelFlex-1.0.2.xcarchive -quiet
 ```
 
 Testes:
@@ -62,7 +64,7 @@ Testes:
 
 Archive:
 
-- `build/CombustivelFlex-1.0.1.xcarchive` foi gerado com sucesso.
+- `build/CombustivelFlex-1.0.2.xcarchive` foi gerado com sucesso.
 - O archive contém dSYMs do app e dos frameworks Google:
   - `CombustivelFlex.app.dSYM`
   - `GoogleMobileAds.framework.dSYM`
@@ -105,10 +107,10 @@ No Mac novo:
 
 Versão atual preparada para produção:
 
-- `MARKETING_VERSION = 1.0.1`
-- `CURRENT_PROJECT_VERSION = 2`
+- `MARKETING_VERSION = 1.0.2`
+- `CURRENT_PROJECT_VERSION = 4`
 
-Archive local gerado em `build/CombustivelFlex-1.0.1.xcarchive`.
+Archive local gerado em `build/CombustivelFlex-1.0.2.xcarchive`.
 
 Observação sobre dSYMs:
 
@@ -118,7 +120,7 @@ Observação sobre dSYMs:
 - Se o Organizer ainda acusar dSYM ausente, rodar manualmente:
 
 ```bash
-scripts/add_google_dsyms_to_archive.sh build/CombustivelFlex-1.0.1.xcarchive
+scripts/add_google_dsyms_to_archive.sh build/CombustivelFlex-1.0.2.xcarchive
 ```
 
 ## Regra de Cálculo
@@ -211,4 +213,4 @@ Depois disso, próximos blocos naturais:
 - Evoluir notificações reais.
 - Implementar avaliação/compartilhamento quando houver links da loja.
 - Validar anúncios em device/simulador pelo Xcode e checar políticas/consentimento AdMob.
-- Enviar versão `1.0.1 (2)` para App Store Connect.
+- Enviar versão `1.0.2 (4)` para App Store Connect.

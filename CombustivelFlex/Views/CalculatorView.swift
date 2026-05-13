@@ -30,7 +30,6 @@ struct CalculatorView: View {
         }
         .background(AppTheme.Colors.background)
         .ignoresSafeArea(edges: .top)
-        .adMobBannerFooter(adUnitID: AdMobConfig.Banner.calculator)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             viewModel.applyDefaultConsumption(
@@ -142,6 +141,9 @@ struct CalculatorView: View {
                 viewModel.clear()
                 shouldShowResult = false
             }
+
+            AdMobBannerView(adUnitID: AdMobConfig.Banner.calculator, reservesTabBarClearance: false)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
 
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)

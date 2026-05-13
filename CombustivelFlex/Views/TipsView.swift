@@ -30,22 +30,27 @@ struct TipsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
-                Text("Dicas de economia")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(AppTheme.Colors.textPrimary)
-                    .padding(.top, AppTheme.Spacing.large)
+            PageCard {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                    Text("Dicas de economia")
+                        .font(.system(size: 34, weight: .bold))
+                        .foregroundStyle(AppTheme.Colors.textPrimary)
 
-                VStack(spacing: AppTheme.Spacing.large) {
-                    ForEach(tips) { tip in
-                        EconomyTipCard(tip: tip)
+                    VStack(spacing: AppTheme.Spacing.large) {
+                        ForEach(tips) { tip in
+                            EconomyTipCard(tip: tip)
+                        }
                     }
+
+                    AdMobBannerView(adUnitID: AdMobConfig.Banner.tips, reservesTabBarClearance: false)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
                 }
             }
-            .padding(AppTheme.Spacing.large)
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
         }
         .background(AppTheme.Colors.background)
-        .adMobBannerFooter(adUnitID: AdMobConfig.Banner.tips)
         .toolbar(.hidden, for: .navigationBar)
     }
 }

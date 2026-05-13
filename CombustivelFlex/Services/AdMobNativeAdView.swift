@@ -26,15 +26,21 @@ final class NativeAdViewModel: NSObject, ObservableObject {
         }
 
         didRequestAd = true
-        let loader = AdLoader(
-            adUnitID: adUnitID,
-            rootViewController: rootViewController,
-            adTypes: [.native],
-            options: nil
-        )
-        loader.delegate = self
-        loader.load(Request())
-        adLoader = loader
+        AdMobStartup.shared.whenReady { [weak self] in
+            guard let self else {
+                return
+            }
+
+            let loader = AdLoader(
+                adUnitID: adUnitID,
+                rootViewController: rootViewController,
+                adTypes: [.native],
+                options: nil
+            )
+            loader.delegate = self
+            loader.load(Request())
+            adLoader = loader
+        }
     }
 
     private func scheduleLoadRetry() {
@@ -71,9 +77,11 @@ extension NativeAdViewModel: NativeAdLoaderDelegate {
 
 struct AdMobNativeAdView: View {
     @StateObject private var viewModel: NativeAdViewModel
+    private let reservesTabBarClearance: Bool
 
-    init(adUnitID: String) {
+    init(adUnitID: String, reservesTabBarClearance: Bool = true) {
         _viewModel = StateObject(wrappedValue: NativeAdViewModel(adUnitID: adUnitID))
+        self.reservesTabBarClearance = reservesTabBarClearance
     }
 
     var body: some View {
@@ -83,7 +91,7 @@ struct AdMobNativeAdView: View {
                 .background(AppTheme.Colors.surface)
                 .opacity(viewModel.nativeAd == nil ? 0 : 1)
 
-            if viewModel.nativeAd != nil {
+            if viewModel.nativeAd != nil && reservesTabBarClearance {
                 Color.clear
                     .frame(height: AdMobNativeFooterLayout.tabBarClearance)
             }
