@@ -83,7 +83,7 @@ struct SettingsView: View {
 
                         SettingsDivider()
 
-                        SettingsNavigationRow(title: "Sobre o Combustível Flex", subtitle: "Versão 1.0.2") {
+                        SettingsNavigationRow(title: "Sobre o Combustível Flex", subtitle: "Versão 1.0.3") {
                             openURL(appWebsiteURL)
                         }
                     }

@@ -52,7 +52,7 @@ Builds/testes validados por Codex:
 ```bash
 xcodebuild test -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -destination 'platform=iOS Simulator,name=iPhone 17' -quiet
 xcodebuild build -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -quiet
-xcodebuild archive -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -archivePath build/CombustivelFlex-1.0.2.xcarchive -quiet
+xcodebuild archive -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -archivePath build/CombustivelFlex-1.0.3.xcarchive -quiet
 ```
 
 Testes:
@@ -64,7 +64,7 @@ Testes:
 
 Archive:
 
-- `build/CombustivelFlex-1.0.2.xcarchive` foi gerado com sucesso.
+- `build/CombustivelFlex-1.0.3.xcarchive` foi gerado com sucesso.
 - O archive contém dSYMs do app e dos frameworks Google:
   - `CombustivelFlex.app.dSYM`
   - `GoogleMobileAds.framework.dSYM`
@@ -107,10 +107,10 @@ No Mac novo:
 
 Versão atual preparada para produção:
 
-- `MARKETING_VERSION = 1.0.2`
-- `CURRENT_PROJECT_VERSION = 4`
+- `MARKETING_VERSION = 1.0.3`
+- `CURRENT_PROJECT_VERSION = 5`
 
-Archive local gerado em `build/CombustivelFlex-1.0.2.xcarchive`.
+Archive local gerado em `build/CombustivelFlex-1.0.3.xcarchive`.
 
 Observação sobre dSYMs:
 
@@ -120,7 +120,7 @@ Observação sobre dSYMs:
 - Se o Organizer ainda acusar dSYM ausente, rodar manualmente:
 
 ```bash
-scripts/add_google_dsyms_to_archive.sh build/CombustivelFlex-1.0.2.xcarchive
+scripts/add_google_dsyms_to_archive.sh build/CombustivelFlex-1.0.3.xcarchive
 ```
 
 ## Regra de Cálculo
@@ -213,4 +213,4 @@ Depois disso, próximos blocos naturais:
 - Evoluir notificações reais.
 - Implementar avaliação/compartilhamento quando houver links da loja.
 - Validar anúncios em device/simulador pelo Xcode e checar políticas/consentimento AdMob.
-- Enviar versão `1.0.2 (4)` para App Store Connect.
+- Enviar versão `1.0.3 (5)` para App Store Connect.

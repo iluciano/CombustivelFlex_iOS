@@ -8,9 +8,29 @@ struct HistoryView: View {
         ScrollView {
             PageCard {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
-                    Text("Histórico")
-                        .font(.system(size: 34, weight: .bold))
-                        .foregroundStyle(AppTheme.Colors.textPrimary)
+                    HStack(alignment: .center) {
+                        Text("Histórico")
+                            .font(.system(size: 34, weight: .bold))
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        Spacer()
+
+                        if !historyStore.items.isEmpty {
+                            Button {
+                                shouldConfirmClear = true
+                            } label: {
+                                Label("Limpar", systemImage: "trash")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.red)
+                                    .padding(.horizontal, AppTheme.Spacing.medium)
+                                    .frame(height: 38)
+                                    .background(Color.red.opacity(0.08))
+                                    .clipShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Limpar histórico")
+                        }
+                    }
 
                     if historyStore.items.isEmpty {
                         emptyState
@@ -29,13 +49,6 @@ struct HistoryView: View {
         }
         .background(AppTheme.Colors.background)
         .toolbar(.hidden, for: .navigationBar)
-        .toolbar {
-            if !historyStore.items.isEmpty {
-                Button("Limpar") {
-                    shouldConfirmClear = true
-                }
-            }
-        }
         .confirmationDialog(
             "Limpar histórico?",
             isPresented: $shouldConfirmClear,
