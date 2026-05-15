@@ -68,10 +68,15 @@ Testes:
 Archive:
 
 - `build/CombustivelFlex-1.0.4.xcarchive` foi gerado com sucesso.
-- O archive contém dSYMs do app e dos frameworks Google:
+- O archive contém dSYMs do app e dos frameworks embarcados:
   - `CombustivelFlex.app.dSYM`
   - `GoogleMobileAds.framework.dSYM`
   - `UserMessagingPlatform.framework.dSYM`
+  - `FirebaseFirestoreInternal.framework.dSYM`
+  - `absl.framework.dSYM`
+  - `grpc.framework.dSYM`
+  - `grpcpp.framework.dSYM`
+  - `openssl_grpc.framework.dSYM`
 
 ## Preparação App Store
 
@@ -117,8 +122,8 @@ Archive local gerado em `build/CombustivelFlex-1.0.4.xcarchive`.
 
 Observação sobre dSYMs:
 
-- O Swift Package do Google Mobile Ads não inclui dSYMs prontos nos XCFrameworks baixados.
-- O script `scripts/add_google_dsyms_to_archive.sh` gera dSYMs compatíveis a partir dos binários dentro do archive.
+- Alguns Swift Packages binários, incluindo Google Mobile Ads e dependências internas do Firebase/Firestore, podem não incluir dSYMs prontos nos XCFrameworks baixados.
+- O script `scripts/add_google_dsyms_to_archive.sh` gera dSYMs compatíveis para todos os frameworks embarcados a partir dos binários dentro do archive.
 - O scheme compartilhado `CombustivelFlex.xcscheme` possui Post-action de Archive chamando esse script.
 - Se o Organizer ainda acusar dSYM ausente, rodar manualmente:
 

@@ -105,7 +105,7 @@
          <ExecutionAction
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
-               title = "Add Google SDK dSYMs"
+               title = "Add embedded framework dSYMs"
                scriptText = "&quot;${PROJECT_DIR}/scripts/add_google_dsyms_to_archive.sh&quot; &quot;${ARCHIVE_PATH}&quot;">
                <EnvironmentBuildable>
                   <BuildableReference
