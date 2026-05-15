@@ -37,9 +37,15 @@
 		10000000000000000000001D /* AdMobBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001D /* AdMobBannerView.swift */; };
 		10000000000000000000001E /* AdMobNativeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000000000000000000001E /* AdMobNativeAdView.swift */; };
 		10000000000000000000001F /* PageCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000020 /* PageCard.swift */; };
+		100000000000000000000020 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000021 /* GoogleService-Info.plist */; };
+		100000000000000000000021 /* FuelStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000022 /* FuelStation.swift */; };
+		100000000000000000000022 /* StationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000023 /* StationsViewModel.swift */; };
+		100000000000000000000023 /* StationDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000024 /* StationDetailView.swift */; };
 		A00000000000000000000001 /* FuelCalculationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* FuelCalculationServiceTests.swift */; };
 		A00000000000000000000002 /* NumericInputMaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* NumericInputMaskTests.swift */; };
 		C00000000000000000000001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = C20000000000000000000001 /* GoogleMobileAds */; };
+		D00000000000000000000001 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = D20000000000000000000001 /* FirebaseCore */; };
+		D00000000000000000000002 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = D20000000000000000000002 /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,6 +91,10 @@
 		20000000000000000000001E /* AdMobNativeAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobNativeAdView.swift; sourceTree = "<group>"; };
 		20000000000000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		200000000000000000000020 /* PageCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageCard.swift; sourceTree = "<group>"; };
+		200000000000000000000021 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		200000000000000000000022 /* FuelStation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelStation.swift; sourceTree = "<group>"; };
+		200000000000000000000023 /* StationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationsViewModel.swift; sourceTree = "<group>"; };
+		200000000000000000000024 /* StationDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationDetailView.swift; sourceTree = "<group>"; };
 		A10000000000000000000001 /* FuelCalculationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuelCalculationServiceTests.swift; sourceTree = "<group>"; };
 		A10000000000000000000002 /* CombustivelFlexTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CombustivelFlexTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000003 /* NumericInputMaskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericInputMaskTests.swift; sourceTree = "<group>"; };
@@ -96,6 +106,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				C00000000000000000000001 /* GoogleMobileAds in Frameworks */,
+				D00000000000000000000001 /* FirebaseCore in Frameworks */,
+				D00000000000000000000002 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +142,7 @@
 				400000000000000000000009 /* ViewModels */,
 				200000000000000000000015 /* Assets.xcassets */,
 				20000000000000000000001F /* Info.plist */,
+				200000000000000000000021 /* GoogleService-Info.plist */,
 			);
 			path = CombustivelFlex;
 			sourceTree = "<group>";
@@ -152,6 +165,7 @@
 				200000000000000000000006 /* MoreView.swift */,
 				20000000000000000000001A /* TipsView.swift */,
 				20000000000000000000001B /* SettingsView.swift */,
+				200000000000000000000024 /* StationDetailView.swift */,
 				200000000000000000000007 /* PlaceholderView.swift */,
 				200000000000000000000017 /* StartView.swift */,
 				200000000000000000000018 /* ResultView.swift */,
@@ -187,6 +201,7 @@
 				20000000000000000000000E /* AppTab.swift */,
 				20000000000000000000000F /* FuelCalculation.swift */,
 				200000000000000000000010 /* CalculationHistoryItem.swift */,
+				200000000000000000000022 /* FuelStation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -208,6 +223,7 @@
 			isa = PBXGroup;
 			children = (
 				200000000000000000000014 /* CalculatorViewModel.swift */,
+				200000000000000000000023 /* StationsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -248,6 +264,8 @@
 			name = CombustivelFlex;
 			packageProductDependencies = (
 				C20000000000000000000001 /* GoogleMobileAds */,
+				D20000000000000000000001 /* FirebaseCore */,
+				D20000000000000000000002 /* FirebaseFirestore */,
 			);
 			productName = CombustivelFlex;
 			productReference = 200000000000000000000016 /* CombustivelFlex.app */;
@@ -300,6 +318,7 @@
 			mainGroup = 400000000000000000000001;
 			packageReferences = (
 				C10000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				D10000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 40000000000000000000000B /* Products */;
 			projectDirPath = "";
@@ -317,6 +336,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				100000000000000000000015 /* Assets.xcassets in Resources */,
+				100000000000000000000020 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,6 +375,9 @@
 				10000000000000000000001D /* AdMobBannerView.swift in Sources */,
 				10000000000000000000001E /* AdMobNativeAdView.swift in Sources */,
 				10000000000000000000001F /* PageCard.swift in Sources */,
+				100000000000000000000021 /* FuelStation.swift in Sources */,
+				100000000000000000000022 /* StationsViewModel.swift in Sources */,
+				100000000000000000000023 /* StationDetailView.swift in Sources */,
 				100000000000000000000014 /* CalculatorViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -500,7 +523,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = WK7S77VS67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -518,7 +541,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.igorluciano.combustivelflex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -534,7 +557,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = WK7S77VS67;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -552,7 +575,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.igorluciano.combustivelflex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -567,7 +590,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -576,7 +599,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.igorluciano.combustivelflex.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -591,7 +614,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -600,7 +623,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.igorluciano.combustivelflex.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -651,6 +674,14 @@
 				minimumVersion = 13.0.0;
 			};
 		};
+		D10000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -658,6 +689,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C10000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
+		};
+		D20000000000000000000001 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		D20000000000000000000002 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
