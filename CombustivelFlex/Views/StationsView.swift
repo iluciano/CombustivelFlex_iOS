@@ -4,6 +4,8 @@ import UIKit
 struct StationsView: View {
     @Environment(\.openURL) private var openURL
     @StateObject private var viewModel = StationsViewModel()
+    @State private var selectedStation: FuelStation?
+    @State private var shouldShowCollectionInfo = false
 
     var body: some View {
         ScrollView {
@@ -22,6 +24,20 @@ struct StationsView: View {
         }
         .background(AppTheme.Colors.background)
         .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(
+            isPresented: Binding(
+                get: { selectedStation != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        selectedStation = nil
+                    }
+                }
+            )
+        ) {
+            if let selectedStation {
+                StationDetailView(station: selectedStation, mapsURL: viewModel.routeMapsURL(for: selectedStation))
+            }
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !viewModel.stations.isEmpty {
                 VStack(spacing: 0) {
@@ -49,6 +65,11 @@ struct StationsView: View {
         }
         .task {
             viewModel.start()
+        }
+        .alert("Preços coletados pela ANP", isPresented: $shouldShowCollectionInfo) {
+            Button("Entendi", role: .cancel) {}
+        } message: {
+            Text("Os preços apresentados foram coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) na data indicada.")
         }
     }
 
@@ -141,12 +162,15 @@ struct StationsView: View {
         } else {
             LazyVStack(spacing: 0) {
                 ForEach(viewModel.stations) { station in
-                    NavigationLink {
-                        StationDetailView(station: station, mapsURL: viewModel.routeMapsURL(for: station))
-                    } label: {
-                        StationRow(station: station)
+                    StationRow(
+                        station: station,
+                        onInfoTapped: {
+                            shouldShowCollectionInfo = true
+                        }
+                    )
+                    .onTapGesture {
+                        selectedStation = station
                     }
-                    .buttonStyle(.plain)
 
                     if station.id != viewModel.stations.last?.id {
                         Divider()
@@ -185,42 +209,50 @@ struct StationsView: View {
 
 private struct StationRow: View {
     let station: FuelStation
+    let onInfoTapped: () -> Void
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            StationBrandBadge(brand: station.brand)
+        VStack(alignment: .leading, spacing: 6) {
+            CollectionDateLabel(
+                dateText: station.displayCollectionDate,
+                onInfoTapped: onInfoTapped
+            )
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(station.name)
-                    .font(.subheadline.weight(.black))
-                    .foregroundStyle(AppTheme.Colors.textPrimary)
-                    .lineLimit(3)
+            HStack(alignment: .center, spacing: 12) {
+                StationBrandBadge(brand: station.brand)
 
-                Text(distanceText)
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.Colors.textMuted)
-            }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(station.name)
+                        .font(.subheadline.weight(.black))
+                        .foregroundStyle(AppTheme.Colors.textPrimary)
+                        .lineLimit(3)
 
-            Spacer(minLength: AppTheme.Spacing.small)
-
-            HStack(spacing: 8) {
-                VStack(alignment: .trailing, spacing: 4) {
-                    FuelPriceBlock(
-                        value: station.regularGasolinePrice,
-                        label: "Gasolina comum",
-                        tint: AppTheme.Colors.blue
-                    )
-
-                    FuelPriceBlock(
-                        value: station.ethanolPrice,
-                        label: "Etanol",
-                        tint: AppTheme.Colors.green
-                    )
+                    Text(distanceText)
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.Colors.textMuted)
                 }
 
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(AppTheme.Colors.textMuted)
+                Spacer(minLength: AppTheme.Spacing.small)
+
+                HStack(spacing: 8) {
+                    VStack(alignment: .trailing, spacing: 4) {
+                        FuelPriceBlock(
+                            value: station.regularGasolinePrice,
+                            label: "Gasolina comum",
+                            tint: AppTheme.Colors.blue
+                        )
+
+                        FuelPriceBlock(
+                            value: station.ethanolPrice,
+                            label: "Etanol",
+                            tint: AppTheme.Colors.green
+                        )
+                    }
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(AppTheme.Colors.textMuted)
+                }
             }
         }
         .padding(.vertical, 13)
@@ -239,6 +271,29 @@ private struct StationRow: View {
 
         let kilometers = distanceMeters / 1_000
         return String(format: "%.1f km", locale: Locale(identifier: "pt_BR"), kilometers)
+    }
+}
+
+private struct CollectionDateLabel: View {
+    let dateText: String
+    let onInfoTapped: () -> Void
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text("Data de Coleta: \(dateText)")
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(AppTheme.Colors.textMuted)
+                .lineLimit(1)
+
+            Button(action: onInfoTapped) {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(AppTheme.Colors.blue)
+                    .frame(width: 20, height: 20)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Informações sobre a coleta de preços")
+        }
     }
 }
 

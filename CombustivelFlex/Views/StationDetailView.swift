@@ -3,6 +3,7 @@ import SwiftUI
 struct StationDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @State private var shouldShowCollectionInfo = false
 
     let station: FuelStation
     let mapsURL: URL?
@@ -30,6 +31,11 @@ struct StationDetailView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             mapFooter
         }
+        .alert("Preços coletados pela ANP", isPresented: $shouldShowCollectionInfo) {
+            Button("Entendi", role: .cancel) {}
+        } message: {
+            Text("Os preços apresentados foram coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) na data indicada.")
+        }
     }
 
     private var header: some View {
@@ -55,6 +61,14 @@ struct StationDetailView: View {
 
     private var detailCard: some View {
         VStack(spacing: AppTheme.Spacing.large) {
+            CollectionDateHeader(
+                dateText: station.displayCollectionDate,
+                onInfoTapped: {
+                    shouldShowCollectionInfo = true
+                }
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
+
             VStack(spacing: AppTheme.Spacing.medium) {
                 StationDetailLogo(brand: station.brand)
 
@@ -267,8 +281,37 @@ private struct StationServiceCard: View {
             ethanolPrice: 4.09,
             address: "Avenida Luiz Dumont Villares, 1159\nSantana - Sao Paulo - SP",
             updatedAt: nil,
+            collectionDate: "15/05/2026",
             distanceMeters: 949
         ),
         mapsURL: nil
     )
+}
+
+private struct CollectionDateHeader: View {
+    let dateText: String
+    let onInfoTapped: () -> Void
+
+    var body: some View {
+        HStack(spacing: AppTheme.Spacing.small) {
+            Text("Data de Coleta: \(dateText)")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+
+            Button(action: onInfoTapped) {
+                Image(systemName: "info.circle")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.Colors.blue)
+                    .frame(width: 28, height: 28)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Informações sobre a coleta de preços")
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, AppTheme.Spacing.medium)
+        .padding(.vertical, AppTheme.Spacing.small)
+        .background(Color(hex: 0xF3F5FA))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+    }
 }

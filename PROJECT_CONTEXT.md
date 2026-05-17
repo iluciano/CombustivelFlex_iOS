@@ -1,13 +1,13 @@
 # Contexto do Projeto - Combustível Flex iOS
 
-Atualizado em 2026-05-15.
+Atualizado em 2026-05-17.
 
 ## Local
 
 - Repositório: `iluciano/CombustivelFlex_iOS`
 - Caminho local: `/Users/iluciano/Documents/projetos/CombustivelFlex_iOS`
 - Branch atual: `main`
-- Último commit remoto conhecido: `1d3005a Prepare 1.0.3 release`
+- Último commit remoto conhecido: `80628c3 Generate dSYMs for embedded frameworks`
 
 ## Regras de Trabalho
 
@@ -25,6 +25,7 @@ O app compila e está com o fluxo principal do MVP implementado:
 - Resultado em tela própria dentro de card, com botão `Recalcular` limpando os campos ao voltar para cálculo e banner dentro do card.
 - Histórico local funcionando dentro de card, incluindo limpar histórico.
 - Postos próximos implementado com localização atual, leitura Firestore, filtro de 5 km, cálculo de distância, lista em card ordenada por proximidade, tela de detalhe e abertura no app padrão de mapas.
+- Lista e detalhe de Postos exibem `Data de Coleta` da ANP com ícone informativo; quando o Firestore não traz data, o app assume `08/05/2026`.
 - Dicas de economia dentro de card principal, com cards estilo Android e banner dentro do card.
 - Configurações dentro de card principal, com unidade visual, consumo padrão, notificações, lembrete, avaliar, compartilhar, versão e banner dentro do card.
 - Consumos padrão de Configurações são carregados automaticamente na tela de cálculo.
@@ -54,6 +55,8 @@ Builds/testes validados por Codex:
 
 ```bash
 xcodebuild test -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -destination 'platform=iOS Simulator,name=iPhone 17' -quiet
+xcodebuild test -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -destination 'id=4A4EC39A-629F-4485-86B0-9934653F6DB8' -quiet
+xcodebuild build -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -destination 'id=4A4EC39A-629F-4485-86B0-9934653F6DB8' -quiet
 xcodebuild build -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -quiet
 xcodebuild archive -project CombustivelFlex.xcodeproj -scheme CombustivelFlex -configuration Release -destination 'generic/platform=iOS' -archivePath build/CombustivelFlex-1.0.4.xcarchive -quiet
 ```
@@ -115,10 +118,10 @@ No Mac novo:
 
 Versão atual preparada para produção:
 
-- `MARKETING_VERSION = 1.0.4`
-- `CURRENT_PROJECT_VERSION = 6`
+- `MARKETING_VERSION = 1.0.5`
+- `CURRENT_PROJECT_VERSION = 7`
 
-Archive local gerado em `build/CombustivelFlex-1.0.4.xcarchive`.
+Último archive local registrado: `build/CombustivelFlex-1.0.4.xcarchive`.
 
 Observação sobre dSYMs:
 
@@ -199,6 +202,7 @@ Campos lidos por documento:
 - `preco_gasolina_comum`
 - `preco_gasolina_aditivada`
 - `preco_etanol`
+- `data_ultima_coleta` ou variações comuns como `dataUltimaColeta`, `data_coleta`, `dataColeta`
 - `endereco` ou variações comuns como `address`, `logradouro`, `rua`
 - `atualizado_em`
 
@@ -209,6 +213,8 @@ Observações:
 - O botão `VER NO MAPA` da lista abre busca por `postos de gasolina próximos` no app padrão de mapas.
 - O botão `VER NO MAPA` do detalhe abre rota de direção para o posto selecionado no app padrão de mapas.
 - Serviços disponíveis no detalhe são mockados para todos os postos: Troca de óleo, Conveniência e Lavagem.
+- A data de coleta aparece acima do posto na lista e no topo do card de detalhe; o pop-up explica que os preços foram coletados pela ANP na data indicada.
+- Quando não houver `data_ultima_coleta`, a data exibida é `08/05/2026`.
 
 Arquivos principais:
 
@@ -261,4 +267,4 @@ Depois disso, próximos blocos naturais:
 - Evoluir notificações reais.
 - Implementar avaliação/compartilhamento quando houver links da loja.
 - Validar anúncios em device/simulador pelo Xcode e checar políticas/consentimento AdMob.
-- Enviar versão `1.0.4 (6)` para App Store Connect.
+- Enviar versão `1.0.5 (7)` para App Store Connect.

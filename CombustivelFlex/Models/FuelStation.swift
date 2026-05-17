@@ -11,7 +11,18 @@ struct FuelStation: Identifiable {
     let ethanolPrice: Double?
     let address: String?
     let updatedAt: String?
+    let collectionDate: String?
     var distanceMeters: Double?
+
+    static let defaultCollectionDate = "08/05/2026"
+
+    var displayCollectionDate: String {
+        guard let collectionDate, !collectionDate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return Self.defaultCollectionDate
+        }
+
+        return collectionDate
+    }
 }
 
 enum FuelStationBrand: String {

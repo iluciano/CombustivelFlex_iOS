@@ -160,6 +160,7 @@ final class StationsViewModel: NSObject, ObservableObject {
             ethanolPrice: doubleValue(data, keys: ["preco_etanol", "precoEtanol", "etanol"]),
             address: addressValue(data),
             updatedAt: formattedUpdatedAt(data, keys: ["atualizado_em", "atualizadoEm", "updated_at", "updatedAt"]),
+            collectionDate: formattedUpdatedAt(data, keys: ["data_ultima_coleta", "dataUltimaColeta", "data_coleta", "dataColeta"]),
             distanceMeters: stationLocation.distance(from: userLocation)
         )
     }
@@ -263,7 +264,7 @@ final class StationsViewModel: NSObject, ObservableObject {
 
     private func formattedUpdatedAt(_ value: Any?) -> String? {
         if let value = value as? String {
-            return value
+            return formattedDateString(value)
         }
 
         if let timestamp = value as? Timestamp {
@@ -271,6 +272,26 @@ final class StationsViewModel: NSObject, ObservableObject {
         }
 
         return nil
+    }
+
+    private func formattedDateString(_ value: String) -> String {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let inputFormats = ["yyyy-MM-dd", "yyyy/MM/dd", "dd/MM/yyyy", "dd-MM-yyyy"]
+        let outputFormatter = DateFormatter()
+        outputFormatter.locale = Locale(identifier: "pt_BR")
+        outputFormatter.dateFormat = "dd/MM/yyyy"
+
+        for inputFormat in inputFormats {
+            let inputFormatter = DateFormatter()
+            inputFormatter.locale = Locale(identifier: "pt_BR")
+            inputFormatter.dateFormat = inputFormat
+
+            if let date = inputFormatter.date(from: trimmedValue) {
+                return outputFormatter.string(from: date)
+            }
+        }
+
+        return trimmedValue
     }
 }
 
