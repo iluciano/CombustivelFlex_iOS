@@ -31,10 +31,10 @@ struct StationDetailView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             mapFooter
         }
-        .alert("Preços coletados pela ANP", isPresented: $shouldShowCollectionInfo) {
-            Button("Entendi", role: .cancel) {}
+        .alert("Dados da ANP", isPresented: $shouldShowCollectionInfo) {
+            Button("OK", role: .cancel) {}
         } message: {
-            Text("Os preços apresentados foram coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) na data indicada.")
+            Text("Os preços exibidos são coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) e representam a média de preços praticados pelos postos na data indicada.")
         }
     }
 
@@ -128,6 +128,9 @@ struct StationDetailView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+
+            AdMobBannerView(adUnitID: AdMobConfig.Banner.stationDetail, reservesTabBarClearance: false)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
         }
         .padding(AppTheme.Spacing.large)
         .background(AppTheme.Colors.surface)
@@ -294,7 +297,7 @@ private struct CollectionDateHeader: View {
 
     var body: some View {
         HStack(spacing: AppTheme.Spacing.small) {
-            Text("Data de Coleta: \(dateText)")
+            Text("Data de coleta: \(dateText)")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(AppTheme.Colors.textSecondary)
 
@@ -305,7 +308,7 @@ private struct CollectionDateHeader: View {
                     .frame(width: 28, height: 28)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Informações sobre a coleta de preços")
+            .accessibilityLabel("Informações sobre os dados da ANP")
 
             Spacer(minLength: 0)
         }

@@ -20,7 +20,7 @@ struct StationsView: View {
             .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 5)
             .padding(.horizontal, AppTheme.Spacing.medium)
             .padding(.top, AppTheme.Spacing.large)
-            .padding(.bottom, viewModel.stations.isEmpty ? 120 : 118)
+            .padding(.bottom, 118)
         }
         .background(AppTheme.Colors.background)
         .toolbar(.hidden, for: .navigationBar)
@@ -39,37 +39,35 @@ struct StationsView: View {
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !viewModel.stations.isEmpty {
-                VStack(spacing: 0) {
-                    Button {
-                        openNearbyStationsMap()
-                    } label: {
-                        Text("VER NO MAPA")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 54)
-                            .background(AppTheme.Colors.blue)
-                            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, AppTheme.Spacing.large)
-                    .padding(.top, AppTheme.Spacing.small)
-                    .padding(.bottom, AppTheme.Spacing.small)
-
-                    Color.clear
-                        .frame(height: 8)
+            VStack(spacing: 0) {
+                Button {
+                    openNearbyStationsMap()
+                } label: {
+                    Text("VER NO MAPA")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(AppTheme.Colors.blue)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
                 }
-                .background(AppTheme.Colors.background.opacity(0.96))
+                .buttonStyle(.plain)
+                .padding(.horizontal, AppTheme.Spacing.large)
+                .padding(.top, AppTheme.Spacing.small)
+                .padding(.bottom, AppTheme.Spacing.small)
+
+                Color.clear
+                    .frame(height: 8)
             }
+            .background(AppTheme.Colors.background.opacity(0.96))
         }
         .task {
             viewModel.start()
         }
-        .alert("Preços coletados pela ANP", isPresented: $shouldShowCollectionInfo) {
-            Button("Entendi", role: .cancel) {}
+        .alert("Dados da ANP", isPresented: $shouldShowCollectionInfo) {
+            Button("OK", role: .cancel) {}
         } message: {
-            Text("Os preços apresentados foram coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) na data indicada.")
+            Text("Os preços exibidos são coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) e representam a média de preços praticados pelos postos na data indicada.")
         }
     }
 
@@ -127,7 +125,7 @@ struct StationsView: View {
                 ProgressView()
                     .tint(AppTheme.Colors.blue)
 
-                Text("Buscando postos próximos...")
+                Text("Buscando postos...")
                     .font(.body)
                     .foregroundStyle(AppTheme.Colors.textSecondary)
             }
@@ -142,23 +140,13 @@ struct StationsView: View {
                 action: viewModel.refresh
             )
         } else if viewModel.stations.isEmpty {
-            if viewModel.hasStationsOutsideSearchRadius {
-                StationsStateView(
-                    systemImage: "location.magnifyingglass",
-                    title: "Nenhum posto em até 5 km",
-                    message: "Encontramos postos cadastrados, mas nenhum está dentro de um raio de 5 km da sua localização atual.",
-                    buttonTitle: "Atualizar localização",
-                    action: viewModel.refresh
-                )
-            } else {
-                StationsStateView(
-                    systemImage: "fuelpump.fill",
-                    title: "Nenhum posto encontrado",
-                    message: "Ainda não há postos cadastrados próximos à sua localização atual.",
-                    buttonTitle: "Atualizar",
-                    action: viewModel.refresh
-                )
-            }
+            StationsStateView(
+                systemImage: "fuelpump.fill",
+                title: "Nenhum posto encontrado",
+                message: "Não encontramos postos cadastrados próximos à sua localização atual.",
+                buttonTitle: "Atualizar",
+                action: viewModel.refresh
+            )
         } else {
             LazyVStack(spacing: 0) {
                 ForEach(viewModel.stations) { station in
@@ -166,11 +154,11 @@ struct StationsView: View {
                         station: station,
                         onInfoTapped: {
                             shouldShowCollectionInfo = true
+                        },
+                        onSelect: {
+                            selectedStation = station
                         }
                     )
-                    .onTapGesture {
-                        selectedStation = station
-                    }
 
                     if station.id != viewModel.stations.last?.id {
                         Divider()
@@ -210,14 +198,10 @@ struct StationsView: View {
 private struct StationRow: View {
     let station: FuelStation
     let onInfoTapped: () -> Void
+    let onSelect: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            CollectionDateLabel(
-                dateText: station.displayCollectionDate,
-                onInfoTapped: onInfoTapped
-            )
-
             HStack(alignment: .center, spacing: 12) {
                 StationBrandBadge(brand: station.brand)
 
@@ -254,10 +238,16 @@ private struct StationRow: View {
                         .foregroundStyle(AppTheme.Colors.textMuted)
                 }
             }
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onSelect)
+
+            CollectionDateLabel(
+                dateText: station.displayCollectionDate,
+                onInfoTapped: onInfoTapped
+            )
         }
         .padding(.vertical, 13)
         .padding(.horizontal, AppTheme.Spacing.medium)
-        .contentShape(Rectangle())
     }
 
     private var distanceText: String {
@@ -280,7 +270,7 @@ private struct CollectionDateLabel: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Text("Data de Coleta: \(dateText)")
+            Text("Data de coleta: \(dateText)")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(AppTheme.Colors.textMuted)
                 .lineLimit(1)
@@ -292,7 +282,9 @@ private struct CollectionDateLabel: View {
                     .frame(width: 20, height: 20)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Informações sobre a coleta de preços")
+            .accessibilityLabel("Informações sobre os dados da ANP")
+
+            Spacer(minLength: 0)
         }
     }
 }

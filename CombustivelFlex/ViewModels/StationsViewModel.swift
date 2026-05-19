@@ -7,10 +7,10 @@ final class StationsViewModel: NSObject, ObservableObject {
     @Published private(set) var stations: [FuelStation] = []
     @Published private(set) var isLoading = false
     @Published private(set) var locationPermissionDenied = false
-    @Published private(set) var hasStationsOutsideSearchRadius = false
     @Published private(set) var errorMessage: String?
 
-    static let maximumDistanceMeters: Double = 5_000
+    private static let boundingBoxRadiusKilometers = 100.0
+    private static let maximumStationsCount = 10
 
     private let locationManager = CLLocationManager()
     private var currentLocation: CLLocation?
@@ -23,7 +23,6 @@ final class StationsViewModel: NSObject, ObservableObject {
 
     func start() {
         errorMessage = nil
-        hasStationsOutsideSearchRadius = false
 
         switch locationManager.authorizationStatus {
         case .notDetermined:
@@ -42,7 +41,6 @@ final class StationsViewModel: NSObject, ObservableObject {
 
     func requestPermission() {
         errorMessage = nil
-        hasStationsOutsideSearchRadius = false
         locationPermissionDenied = false
         locationManager.requestWhenInUseAuthorization()
     }
@@ -61,8 +59,8 @@ final class StationsViewModel: NSObject, ObservableObject {
     }
 
     func nearbyGasStationsMapsURL() -> URL? {
-        let query = "postos de gasolina próximos"
-            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "postos%20de%20gasolina"
+        let query = "posto de combustível"
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "posto%20de%20combustivel"
 
         guard let currentLocation else {
             return URL(string: "http://maps.apple.com/?q=\(query)")
@@ -81,9 +79,13 @@ final class StationsViewModel: NSObject, ObservableObject {
     private func loadStations(near location: CLLocation) {
         isLoading = true
         errorMessage = nil
-        hasStationsOutsideSearchRadius = false
+        let boundingBox = boundingBox(around: location.coordinate)
 
-        Firestore.firestore().collection("postos").getDocuments { [weak self] snapshot, error in
+        Firestore.firestore()
+            .collection("postos")
+            .whereField("latitude", isGreaterThan: boundingBox.minLatitude)
+            .whereField("latitude", isLessThan: boundingBox.maxLatitude)
+            .getDocuments { [weak self] snapshot, error in
             Task { @MainActor in
                 guard let self else {
                     return
@@ -101,30 +103,31 @@ final class StationsViewModel: NSObject, ObservableObject {
 
                 let documents = snapshot?.documents ?? []
                 let loadedStations = documents.compactMap { document in
-                    self.makeStation(from: document, userLocation: location)
+                    self.makeStation(from: document, userLocation: location, boundingBox: boundingBox)
                 }
                 let sortedStations = loadedStations.sorted {
                     ($0.distanceMeters ?? .greatestFiniteMagnitude) < ($1.distanceMeters ?? .greatestFiniteMagnitude)
                 }
-                let nearbyStations = sortedStations.filter {
-                    ($0.distanceMeters ?? .greatestFiniteMagnitude) <= Self.maximumDistanceMeters
-                }
+                let nearestStations = Array(sortedStations.prefix(Self.maximumStationsCount))
 
                 #if DEBUG
-                print("Firestore postos documents: \(documents.count), parsed: \(loadedStations.count), within 5km: \(nearbyStations.count)")
+                print("Firestore postos documents in latitude box: \(documents.count), parsed in bounding box: \(loadedStations.count), displayed: \(nearestStations.count)")
                 #endif
 
                 if !documents.isEmpty && loadedStations.isEmpty {
                     self.errorMessage = "Os postos foram encontrados, mas os dados estão em um formato diferente do esperado."
                 }
 
-                self.hasStationsOutsideSearchRadius = !sortedStations.isEmpty && nearbyStations.isEmpty
-                self.stations = nearbyStations
+                self.stations = nearestStations
             }
         }
     }
 
-    private func makeStation(from document: QueryDocumentSnapshot, userLocation: CLLocation) -> FuelStation? {
+    private func makeStation(
+        from document: QueryDocumentSnapshot,
+        userLocation: CLLocation,
+        boundingBox: StationBoundingBox
+    ) -> FuelStation? {
         let data = document.data()
 
         guard let name = stringValue(data, keys: ["nome", "name", "Nome", "posto", "razao_social"]),
@@ -147,6 +150,11 @@ final class StationsViewModel: NSObject, ObservableObject {
             return nil
         }
 
+        guard coordinate.longitude >= boundingBox.minLongitude,
+              coordinate.longitude <= boundingBox.maxLongitude else {
+            return nil
+        }
+
         let stationLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
 
         return FuelStation(
@@ -166,7 +174,24 @@ final class StationsViewModel: NSObject, ObservableObject {
     }
 
     private func addressValue(_ data: [String: Any]) -> String? {
-        if let address = stringValue(data, keys: ["endereco", "address", "logradouro", "rua"]) {
+        if let address = data["endereco"] as? [String: Any] {
+            return addressValue(address)
+        }
+
+        let street = stringValue(data, keys: ["rua", "logradouro"])
+        let number = stringValue(data, keys: ["numero", "number"])
+        let neighborhood = stringValue(data, keys: ["bairro", "neighborhood"])
+        let city = stringValue(data, keys: ["cidade", "city"])
+        let state = stringValue(data, keys: ["uf", "estado", "state"])
+        let line1 = [street, number].compactMap { $0 }.joined(separator: ", ")
+        let line2 = [neighborhood, city, state].compactMap { $0 }.joined(separator: " - ")
+        let lines = [line1, line2].filter { !$0.isEmpty }
+
+        if !lines.isEmpty {
+            return lines.joined(separator: "\n")
+        }
+
+        if let address = stringValue(data, keys: ["endereco", "address"]) {
             let city = stringValue(data, keys: ["cidade", "city"])
             let state = stringValue(data, keys: ["uf", "estado", "state"])
             let cityState = [city, state].compactMap { $0 }.joined(separator: " - ")
@@ -178,21 +203,21 @@ final class StationsViewModel: NSObject, ObservableObject {
             return "\(address)\n\(cityState)"
         }
 
-        if let address = data["endereco"] as? [String: Any] {
-            let street = stringValue(address, keys: ["logradouro", "rua", "endereco", "address"])
-            let number = stringValue(address, keys: ["numero", "number"])
-            let neighborhood = stringValue(address, keys: ["bairro", "neighborhood"])
-            let city = stringValue(address, keys: ["cidade", "city"])
-            let state = stringValue(address, keys: ["uf", "estado", "state"])
-
-            let line1 = [street, number].compactMap { $0 }.joined(separator: ", ")
-            let line2 = [neighborhood, city, state].compactMap { $0 }.joined(separator: " - ")
-            let lines = [line1, line2].filter { !$0.isEmpty }
-
-            return lines.isEmpty ? nil : lines.joined(separator: "\n")
-        }
-
         return nil
+    }
+
+    private func boundingBox(around coordinate: CLLocationCoordinate2D) -> StationBoundingBox {
+        let latitudeDelta = Self.boundingBoxRadiusKilometers / 111.0
+        let latitudeRadians = coordinate.latitude * .pi / 180
+        let longitudeDenominator = max(111.0 * cos(latitudeRadians), 0.01)
+        let longitudeDelta = Self.boundingBoxRadiusKilometers / longitudeDenominator
+
+        return StationBoundingBox(
+            minLatitude: coordinate.latitude - latitudeDelta,
+            maxLatitude: coordinate.latitude + latitudeDelta,
+            minLongitude: coordinate.longitude - longitudeDelta,
+            maxLongitude: coordinate.longitude + longitudeDelta
+        )
     }
 
     private func stringValue(_ data: [String: Any], keys: [String]) -> String? {
@@ -293,6 +318,13 @@ final class StationsViewModel: NSObject, ObservableObject {
 
         return trimmedValue
     }
+}
+
+private struct StationBoundingBox {
+    let minLatitude: Double
+    let maxLatitude: Double
+    let minLongitude: Double
+    let maxLongitude: Double
 }
 
 extension StationsViewModel: CLLocationManagerDelegate {
