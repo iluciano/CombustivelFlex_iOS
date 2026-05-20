@@ -80,7 +80,7 @@ struct StartView: View {
     private var brandHeader: some View {
         VStack(spacing: AppTheme.Spacing.medium) {
             HStack(spacing: AppTheme.Spacing.small) {
-                BrandIcon()
+                AppLogoIcon()
 
                 HStack(spacing: 4) {
                     Text("COMBUSTÍVEL")
@@ -168,15 +168,19 @@ struct BrandIcon: View {
     var size: CGFloat = 36
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
-                .fill(AppTheme.Colors.blue)
+        AppLogoIcon(size: size)
+    }
+}
 
-            Image(systemName: "fuelpump.fill")
-                .font(.system(size: size * 0.58, weight: .bold))
-                .foregroundStyle(.white)
-        }
-        .frame(width: size, height: size)
+struct AppLogoIcon: View {
+    var size: CGFloat = 36
+
+    var body: some View {
+        Image("app_logo")
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
     }
 }
 

@@ -68,7 +68,7 @@ struct CalculatorView: View {
     private var brandHeader: some View {
         VStack(spacing: AppTheme.Spacing.medium) {
             HStack(spacing: AppTheme.Spacing.small) {
-                BrandIcon()
+                AppLogoIcon()
 
                 HStack(spacing: 4) {
                     Text("COMBUSTÍVEL")

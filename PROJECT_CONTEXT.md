@@ -1,13 +1,13 @@
 # Contexto do Projeto - Combustível Flex iOS
 
-Atualizado em 2026-05-18.
+Atualizado em 2026-05-20.
 
 ## Local
 
 - Repositório: `iluciano/CombustivelFlex_iOS`
 - Caminho local: `/Users/iluciano/Documents/projetos/CombustivelFlex_iOS`
 - Branch atual: `main`
-- Último commit remoto conhecido: `9b3096a Prepare 1.0.5 release`
+- Último commit remoto conhecido: `02bc507 Prepare stations list release`
 
 ## Regras de Trabalho
 
@@ -23,6 +23,7 @@ O app compila e está com o fluxo principal do MVP implementado:
 - Tela inicial com imagem real de estrada no topo e menu estilo Android.
 - Tela de cálculo com imagem real no topo, card principal, máscara nos inputs, botão `Calcular`, botão `Limpar` e banner dentro do card.
 - Resultado em tela própria dentro de card, com botão `Recalcular` limpando os campos ao voltar para cálculo e banner dentro do card.
+- O logo exibido no título das telas Inicial, Cálculo e Resultado usa o ícone atual do app.
 - Histórico local funcionando dentro de card, incluindo limpar histórico.
 - Postos próximos implementado com localização atual, leitura Firestore otimizada por bounding box de aproximadamente 100 km, filtro client-side de longitude, cálculo de distância, lista em card com os 10 postos mais próximos, tela de detalhe e abertura no app padrão de mapas.
 - Lista e detalhe de Postos exibem `Data de coleta` da ANP com ícone informativo; quando o Firestore não traz data, o app assume `08/05/2026`.
@@ -119,8 +120,8 @@ No Mac novo:
 
 Versão atual preparada para produção:
 
-- `MARKETING_VERSION = 1.0.6`
-- `CURRENT_PROJECT_VERSION = 8`
+- `MARKETING_VERSION = 1.0.7`
+- `CURRENT_PROJECT_VERSION = 9`
 
 Último archive local registrado: `build/CombustivelFlex-1.0.4.xcarchive`.
 
@@ -233,6 +234,7 @@ Assets adicionados:
 - `road_header`: imagem real da estrada usada no topo da tela inicial e da tela de cálculo.
 - `stations_hero`: imagem da tela de postos próximos.
 - `station_shell`, `station_ipiranga`, `station_ale`, `station_br`: logos de bandeiras usados em Postos.
+- `app_logo`: cópia do ícone atual do app usada nos headers e no destaque da tela de Resultado.
 - `AppIcon.appiconset`: ícone final do app com tamanhos iPhone/iPad/App Store, incluindo `1024x1024`.
 
 Ainda pendente:
@@ -270,4 +272,4 @@ Depois disso, próximos blocos naturais:
 - Evoluir notificações reais.
 - Implementar avaliação/compartilhamento quando houver links da loja.
 - Validar anúncios em device/simulador pelo Xcode e checar políticas/consentimento AdMob.
-- Enviar versão `1.0.6 (8)` para App Store Connect.
+- Enviar versão `1.0.7 (9)` para App Store Connect.
