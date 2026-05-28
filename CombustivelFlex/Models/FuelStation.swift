@@ -1,6 +1,6 @@
 import Foundation
 
-struct FuelStation: Identifiable {
+struct FuelStation: Identifiable, Codable, Equatable {
     let id: String
     let name: String
     let brand: FuelStationBrand
@@ -23,9 +23,13 @@ struct FuelStation: Identifiable {
 
         return collectionDate
     }
+
+    static func == (lhs: FuelStation, rhs: FuelStation) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
-enum FuelStationBrand: String {
+enum FuelStationBrand: String, Codable {
     case ipiranga
     case shell
     case br
@@ -80,5 +84,63 @@ enum FuelStationBrand: String {
         case .ale: return "station_ale"
         case .totalenergies, .unknown: return nil
         }
+    }
+}
+
+enum FavoriteStationsStore {
+    private static let idsKey = "favorite_ids"
+    private static let stationKeyPrefix = "posto_"
+    private static let defaults = UserDefaults.standard
+
+    static func isFavorite(_ stationID: String) -> Bool {
+        favoriteIDs().contains(stationID)
+    }
+
+    static func add(_ station: FuelStation) {
+        var ids = favoriteIDs()
+        guard !ids.contains(station.id) else {
+            save(station)
+            return
+        }
+
+        ids.append(station.id)
+        defaults.set(ids, forKey: idsKey)
+        save(station)
+    }
+
+    static func remove(_ stationID: String) {
+        var ids = favoriteIDs()
+        ids.removeAll { $0 == stationID }
+        defaults.set(ids, forKey: idsKey)
+        defaults.removeObject(forKey: stationKey(for: stationID))
+    }
+
+    static func favorites() -> [FuelStation] {
+        favoriteIDs().compactMap { stationID in
+            guard let json = defaults.string(forKey: stationKey(for: stationID)),
+                  let data = json.data(using: .utf8),
+                  let station = try? JSONDecoder().decode(FuelStation.self, from: data) else {
+                return nil
+            }
+
+            return station
+        }
+    }
+
+    private static func favoriteIDs() -> [String] {
+        defaults.stringArray(forKey: idsKey) ?? []
+    }
+
+    private static func save(_ station: FuelStation) {
+        guard let data = try? JSONEncoder().encode(station),
+              let json = String(data: data, encoding: .utf8) else {
+            return
+        }
+
+        defaults.set(json, forKey: stationKey(for: station.id))
+    }
+
+    private static func stationKey(for stationID: String) -> String {
+        "\(stationKeyPrefix)\(stationID)"
     }
 }

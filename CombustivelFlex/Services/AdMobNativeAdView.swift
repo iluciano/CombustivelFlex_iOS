@@ -78,14 +78,25 @@ extension NativeAdViewModel: NativeAdLoaderDelegate {
 struct AdMobNativeAdView: View {
     @StateObject private var viewModel: NativeAdViewModel
     private let reservesTabBarClearance: Bool
+    private let showsTopDividerWhenLoaded: Bool
 
-    init(adUnitID: String, reservesTabBarClearance: Bool = true) {
+    init(
+        adUnitID: String,
+        reservesTabBarClearance: Bool = true,
+        showsTopDividerWhenLoaded: Bool = false
+    ) {
         _viewModel = StateObject(wrappedValue: NativeAdViewModel(adUnitID: adUnitID))
         self.reservesTabBarClearance = reservesTabBarClearance
+        self.showsTopDividerWhenLoaded = showsTopDividerWhenLoaded
     }
 
     var body: some View {
         VStack(spacing: 0) {
+            if viewModel.nativeAd != nil && showsTopDividerWhenLoaded {
+                Divider()
+                    .padding(.bottom, AppTheme.Spacing.medium)
+            }
+
             NativeAdContainer(viewModel: viewModel)
                 .frame(height: viewModel.nativeAd == nil ? 0 : 144)
                 .background(AppTheme.Colors.surface)

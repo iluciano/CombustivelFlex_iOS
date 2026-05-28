@@ -59,20 +59,25 @@ final class StationsViewModel: NSObject, ObservableObject {
     }
 
     func nearbyGasStationsMapsURL() -> URL? {
-        let query = "posto de combustível"
-            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "posto%20de%20combustivel"
+        let query = "posto+de+combustivel"
 
         guard let currentLocation else {
-            return URL(string: "http://maps.apple.com/?q=\(query)")
+            return URL(string: "maps://?q=\(query)")
         }
 
         return URL(
-            string: "http://maps.apple.com/?q=\(query)&ll=\(currentLocation.coordinate.latitude),\(currentLocation.coordinate.longitude)"
+            string: "maps://?q=\(query)&sll=\(currentLocation.coordinate.latitude),\(currentLocation.coordinate.longitude)"
         )
     }
 
     private func requestCurrentLocation() {
         isLoading = true
+        if let cachedLocation = locationManager.location {
+            currentLocation = cachedLocation
+            loadStations(near: cachedLocation)
+            return
+        }
+
         locationManager.requestLocation()
     }
 
@@ -131,19 +136,7 @@ final class StationsViewModel: NSObject, ObservableObject {
         let data = document.data()
 
         guard let name = stringValue(data, keys: ["nome", "name", "Nome", "posto", "razao_social"]),
-              let coordinate = coordinateValue(data),
-              let regularGasolinePrice = doubleValue(
-                data,
-                keys: [
-                    "preco_gasolina_comum",
-                    "precoGasolinaComum",
-                    "gasolina_comum",
-                    "gasolinaComum",
-                    "preco_gasolina",
-                    "precoGasolina",
-                    "gasolina"
-                ]
-              ) else {
+              let coordinate = coordinateValue(data) else {
             #if DEBUG
             print("Skipped posto \(document.documentID). Keys: \(Array(data.keys).sorted())")
             #endif
@@ -163,7 +156,18 @@ final class StationsViewModel: NSObject, ObservableObject {
             brand: FuelStationBrand(rawValue: stringValue(data, keys: ["bandeira", "brand", "marca"]) ?? ""),
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
-            regularGasolinePrice: regularGasolinePrice,
+            regularGasolinePrice: doubleValue(
+                data,
+                keys: [
+                    "preco_gasolina",
+                    "preco_gasolina_comum",
+                    "precoGasolinaComum",
+                    "gasolina_comum",
+                    "gasolinaComum",
+                    "precoGasolina",
+                    "gasolina"
+                ]
+            ) ?? 0,
             additiveGasolinePrice: doubleValue(data, keys: ["preco_gasolina_aditivada", "precoGasolinaAditivada", "gasolina_aditivada", "gasolinaAditivada"]),
             ethanolPrice: doubleValue(data, keys: ["preco_etanol", "precoEtanol", "etanol"]),
             address: addressValue(data),
@@ -360,7 +364,7 @@ extension StationsViewModel: CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
             isLoading = false
-            errorMessage = "Não foi possível obter sua localização atual. Tente novamente."
+            errorMessage = "Não foi possível obter a localização."
 
             #if DEBUG
             print("Location error: \(error.localizedDescription)")

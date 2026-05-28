@@ -1,13 +1,13 @@
 # Contexto do Projeto - Combustível Flex iOS
 
-Atualizado em 2026-05-20.
+Atualizado em 2026-05-27.
 
 ## Local
 
 - Repositório: `iluciano/CombustivelFlex_iOS`
 - Caminho local: `/Users/iluciano/Documents/projetos/CombustivelFlex_iOS`
 - Branch atual: `main`
-- Último commit remoto conhecido: `02bc507 Prepare stations list release`
+- Último commit remoto conhecido: `153ab5b Update app logo for release`
 
 ## Regras de Trabalho
 
@@ -25,15 +25,16 @@ O app compila e está com o fluxo principal do MVP implementado:
 - Resultado em tela própria dentro de card, com botão `Recalcular` limpando os campos ao voltar para cálculo e banner dentro do card.
 - O logo exibido no título das telas Inicial, Cálculo e Resultado usa o ícone atual do app.
 - Histórico local funcionando dentro de card, incluindo limpar histórico.
-- Postos próximos implementado com localização atual, leitura Firestore otimizada por bounding box de aproximadamente 100 km, filtro client-side de longitude, cálculo de distância, lista em card com os 10 postos mais próximos, tela de detalhe e abertura no app padrão de mapas.
+- Postos próximos implementado com localização atual, leitura Firestore otimizada por bounding box de aproximadamente 100 km, filtro client-side de longitude, cálculo de distância, lista em card com os 10 postos mais próximos, aba de favoritos local, tela de detalhe e abertura no app padrão de mapas.
 - Lista e detalhe de Postos exibem `Data de coleta` da ANP com ícone informativo; quando o Firestore não traz data, o app assume `08/05/2026`.
+- Detalhe do posto permite favoritar/desfavoritar com coração e toast de feedback; favoritos são persistidos localmente.
 - Dicas de economia dentro de card principal, com cards estilo Android e banner dentro do card.
 - Configurações dentro de card principal, com unidade visual, consumo padrão, notificações, lembrete, avaliar, compartilhar, versão e banner dentro do card.
 - Consumos padrão de Configurações são carregados automaticamente na tela de cálculo.
 - Ao calcular com consumos diferentes dos padrões salvos, o app pergunta se deve salvar/substituir o padrão.
 - Google AdMob integrado:
   - banners em Calcular, Resultado, Configurações e Dicas, dentro do card principal de cada tela;
-  - banner no detalhe do posto, dentro do card, abaixo de Serviços disponíveis;
+  - anúncio nativo avançado no detalhe do posto, abaixo do card principal e exibido apenas quando carregado;
   - anúncio nativo avançado na aba Mais, dentro do card principal.
 - Postos próximos não usa o padrão de card principal por decisão de layout.
 - Firebase inicializado no app com `GoogleService-Info.plist` incluído no target.
@@ -120,8 +121,8 @@ No Mac novo:
 
 Versão atual preparada para produção:
 
-- `MARKETING_VERSION = 1.0.7`
-- `CURRENT_PROJECT_VERSION = 9`
+- `MARKETING_VERSION = 1.0.8`
+- `CURRENT_PROJECT_VERSION = 10`
 
 Último archive local registrado: `build/CombustivelFlex-1.0.4.xcarchive`.
 
@@ -170,7 +171,7 @@ Arquivos principais:
 
 - `AdMobConfig.swift`: IDs de anúncios.
 - `AdMobBannerView.swift`: banner SwiftUI com banner adaptativo, `rootViewController` explícito, carregamento protegido e espaço reservado apenas quando há anúncio carregado.
-- `AdMobNativeAdView.swift`: native advanced ad usado na tela Mais com `MediaView` de 120x120, carregamento protegido e espaço reservado apenas quando há anúncio carregado.
+- `AdMobNativeAdView.swift`: native advanced ad usado na tela Mais e no detalhe do posto com `MediaView` de 120x120, carregamento protegido e espaço reservado apenas quando há anúncio carregado.
 - `scripts/add_google_dsyms_to_archive.sh`: pós-processa o `.xcarchive` para incluir dSYMs do `GoogleMobileAds.framework` e `UserMessagingPlatform.framework`.
 
 IDs configurados:
@@ -179,8 +180,8 @@ IDs configurados:
 - Resultado: `ca-app-pub-1199102836233471/9755164144`
 - Configurações: `ca-app-pub-1199102836233471/9891345223`
 - Dicas: `ca-app-pub-1199102836233471/8394430723`
-- Detalhe do posto: `ca-app-pub-1199102836233471/6425353873`
 - Mais native advanced: `ca-app-pub-1199102836233471/6566343739`
+- Detalhe do posto native advanced: `ca-app-pub-1199102836233471/6566343739`
 
 Observação: antes de distribuição, revisar exigências finais do AdMob, consentimento/privacidade, ATT se aplicável e SKAdNetwork conforme documentação vigente.
 
@@ -213,11 +214,13 @@ Observações:
 
 - A lista consulta o Firestore com filtro server-side por latitude em bounding box de aproximadamente 100 km ao redor do usuário.
 - A longitude é filtrada no cliente, a distância exata é calculada com `CLLocation.distance(from:)`, e a lista exibe os 10 postos mais próximos.
+- A tela de Postos possui abas `Próximos` e `Favoritos`; a aba Favoritos é carregada de `UserDefaults` e exibe estado vazio próprio.
 - O botão `VER NO MAPA` da lista abre busca por `posto de combustível` no app padrão de mapas usando a coordenada atual quando disponível.
 - O botão `VER NO MAPA` do detalhe abre rota de direção para o posto selecionado no app padrão de mapas.
 - Serviços disponíveis no detalhe são mockados para todos os postos: Troca de óleo, Conveniência e Lavagem.
 - A data de coleta aparece na linha inferior do item da lista e no topo do card de detalhe; o pop-up `Dados da ANP` explica que os preços foram coletados pela ANP na data indicada.
 - Quando não houver `data_ultima_coleta`, a data exibida é `08/05/2026`.
+- Favoritos de postos são salvos em `UserDefaults` nas chaves `favorite_ids` e `posto_<id>`.
 - A especificação técnica da lista de postos está documentada em `STATIONS_LIST_SPEC.md` na raiz do projeto.
 
 Arquivos principais:
@@ -272,4 +275,4 @@ Depois disso, próximos blocos naturais:
 - Evoluir notificações reais.
 - Implementar avaliação/compartilhamento quando houver links da loja.
 - Validar anúncios em device/simulador pelo Xcode e checar políticas/consentimento AdMob.
-- Enviar versão `1.0.7 (9)` para App Store Connect.
+- Enviar versão `1.0.8 (10)` para App Store Connect.

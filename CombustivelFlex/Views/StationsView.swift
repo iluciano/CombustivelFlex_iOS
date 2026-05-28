@@ -4,6 +4,8 @@ import UIKit
 struct StationsView: View {
     @Environment(\.openURL) private var openURL
     @StateObject private var viewModel = StationsViewModel()
+    @State private var selectedMode: StationsListMode = .nearby
+    @State private var favoriteStations: [FuelStation] = []
     @State private var selectedStation: FuelStation?
     @State private var shouldShowCollectionInfo = false
 
@@ -30,6 +32,7 @@ struct StationsView: View {
                 set: { isPresented in
                     if !isPresented {
                         selectedStation = nil
+                        reloadFavorites()
                     }
                 }
             )
@@ -64,59 +67,61 @@ struct StationsView: View {
         .task {
             viewModel.start()
         }
+        .onAppear {
+            reloadFavorites()
+        }
+        .onChange(of: selectedMode) { _, mode in
+            if mode == .favorites {
+                reloadFavorites()
+            }
+        }
         .alert("Dados da ANP", isPresented: $shouldShowCollectionInfo) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Os preços exibidos são coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) e representam a média de preços praticados pelos postos na data indicada.")
+            Text("Os preços exibidos são coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) com base em pesquisas realizadas periodicamente nos postos de combustível.\n\nA data de coleta indica quando essas informações foram registradas pela agência.")
         }
     }
 
     private var header: some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Postos próximos")
-                    .font(.title2.bold())
-                    .foregroundStyle(AppTheme.Colors.textPrimary)
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
+            Text("Postos próximos")
+                .font(.title2.bold())
+                .foregroundStyle(AppTheme.Colors.textPrimary)
 
+            StationsModePicker(selection: $selectedMode)
+
+            if selectedMode == .nearby {
                 Button {
                     viewModel.refresh()
                 } label: {
-                    HStack(spacing: 5) {
+                    HStack(spacing: 6) {
                         Image(systemName: "mappin")
                             .font(.caption.weight(.semibold))
 
                         Text("Localização atual")
                             .font(.caption.weight(.medium))
+
+                        Image(systemName: "arrow.clockwise")
+                            .font(.caption.weight(.semibold))
                     }
+                    .foregroundStyle(AppTheme.Colors.textMuted)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(AppTheme.Colors.blue)
                 .accessibilityLabel("Atualizar postos pela localização atual")
             }
-
-            Spacer()
-
-            Button {
-                viewModel.refresh()
-            } label: {
-                Image(systemName: "arrow.clockwise")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(AppTheme.Colors.blue)
-                    .frame(width: 34, height: 34)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Atualizar lista de postos")
         }
     }
 
     @ViewBuilder
     private var content: some View {
-        if viewModel.locationPermissionDenied {
+        if selectedMode == .favorites {
+            favoritesContent
+        } else if viewModel.locationPermissionDenied {
             StationsStateView(
                 systemImage: "location.slash.fill",
-                title: "Permita o acesso à localização",
-                message: "A localização é necessária para ordenar os postos mais próximos de você.",
+                title: "Permissão de localização necessária",
+                message: "Permissão de localização necessária para mostrar postos próximos.",
                 buttonTitle: "Abrir Ajustes",
                 action: openAppSettings
             )
@@ -125,7 +130,7 @@ struct StationsView: View {
                 ProgressView()
                     .tint(AppTheme.Colors.blue)
 
-                Text("Buscando postos...")
+                Text("Buscando postos próximos...")
                     .font(.body)
                     .foregroundStyle(AppTheme.Colors.textSecondary)
             }
@@ -135,7 +140,7 @@ struct StationsView: View {
             StationsStateView(
                 systemImage: "wifi.exclamationmark",
                 title: "Não foi possível carregar",
-                message: errorMessage,
+                message: errorMessage == "Não foi possível obter a localização." ? errorMessage : "Erro ao buscar postos. Verifique sua conexão.",
                 buttonTitle: "Tentar novamente",
                 action: viewModel.refresh
             )
@@ -148,34 +153,47 @@ struct StationsView: View {
                 action: viewModel.refresh
             )
         } else {
-            LazyVStack(spacing: 0) {
-                ForEach(viewModel.stations) { station in
-                    StationRow(
-                        station: station,
-                        onInfoTapped: {
-                            shouldShowCollectionInfo = true
-                        },
-                        onSelect: {
-                            selectedStation = station
-                        }
-                    )
-
-                    if station.id != viewModel.stations.last?.id {
-                        Divider()
-                            .padding(.leading, 78)
-                    }
-                }
-            }
-            .background(AppTheme.Colors.surface)
+            stationList(viewModel.stations)
         }
     }
 
-    private func openMap(for station: FuelStation) {
-        guard let url = viewModel.mapsURL(for: station) else {
-            return
+    @ViewBuilder
+    private var favoritesContent: some View {
+        if favoriteStations.isEmpty {
+            StationsStateView(
+                systemImage: "heart",
+                title: "Nenhum favorito ainda",
+                message: "Abra um posto e toque no coração para salvá-lo aqui.",
+                buttonTitle: "Ver postos próximos",
+                action: {
+                    selectedMode = .nearby
+                }
+            )
+        } else {
+            stationList(favoriteStations)
         }
+    }
 
-        openURL(url)
+    private func stationList(_ stations: [FuelStation]) -> some View {
+        LazyVStack(spacing: 0) {
+            ForEach(stations) { station in
+                StationRow(
+                    station: station,
+                    onInfoTapped: {
+                        shouldShowCollectionInfo = true
+                    },
+                    onSelect: {
+                        selectedStation = station
+                    }
+                )
+
+                if station.id != stations.last?.id {
+                    Divider()
+                        .padding(.leading, 78)
+                }
+            }
+        }
+        .background(AppTheme.Colors.surface)
     }
 
     private func openNearbyStationsMap() {
@@ -186,12 +204,54 @@ struct StationsView: View {
         openURL(url)
     }
 
+    private func reloadFavorites() {
+        favoriteStations = FavoriteStationsStore.favorites()
+    }
+
     private func openAppSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString) else {
             return
         }
 
         openURL(url)
+    }
+}
+
+private enum StationsListMode: CaseIterable {
+    case nearby
+    case favorites
+
+    var title: String {
+        switch self {
+        case .nearby: return "Próximos"
+        case .favorites: return "Favoritos"
+        }
+    }
+}
+
+private struct StationsModePicker: View {
+    @Binding var selection: StationsListMode
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(StationsListMode.allCases, id: \.self) { mode in
+                Button {
+                    selection = mode
+                } label: {
+                    Text(mode.title)
+                        .font(.subheadline.weight(selection == mode ? .bold : .medium))
+                        .foregroundStyle(selection == mode ? .white : AppTheme.Colors.textMuted)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 38)
+                        .background(selection == mode ? AppTheme.Colors.blue : .clear)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(4)
+        .background(AppTheme.Colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
     }
 }
 
@@ -310,8 +370,8 @@ private struct FuelPriceBlock: View {
     }
 
     private var priceText: String {
-        guard let value else {
-            return "R$ --"
+        guard let value, value > 0 else {
+            return "—"
         }
 
         let formatter = NumberFormatter()

@@ -4,6 +4,8 @@ struct StationDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @State private var shouldShowCollectionInfo = false
+    @State private var isFavorite = false
+    @State private var toast: StationToast?
 
     let station: FuelStation
     let mapsURL: URL?
@@ -18,6 +20,7 @@ struct StationDetailView: View {
         ScrollView {
             VStack(spacing: AppTheme.Spacing.large) {
                 detailCard
+                stationNativeAd
             }
             .padding(.horizontal, AppTheme.Spacing.large)
             .padding(.top, AppTheme.Spacing.medium)
@@ -31,10 +34,21 @@ struct StationDetailView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             mapFooter
         }
+        .overlay(alignment: .bottom) {
+            if let toast {
+                StationToastView(toast: toast)
+                    .padding(.horizontal, AppTheme.Spacing.large)
+                    .padding(.bottom, 96)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+        }
+        .onAppear {
+            isFavorite = FavoriteStationsStore.isFavorite(station.id)
+        }
         .alert("Dados da ANP", isPresented: $shouldShowCollectionInfo) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Os preços exibidos são coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) e representam a média de preços praticados pelos postos na data indicada.")
+            Text("Os preços exibidos são coletados pela ANP (Agência Nacional do Petróleo, Gás Natural e Biocombustíveis) com base em pesquisas realizadas periodicamente nos postos de combustível.\n\nA data de coleta indica quando essas informações foram registradas pela agência.")
         }
     }
 
@@ -52,6 +66,17 @@ struct StationDetailView: View {
             .accessibilityLabel("Voltar")
 
             Spacer()
+
+            Button {
+                toggleFavorite()
+            } label: {
+                Image(systemName: isFavorite ? "heart.fill" : "heart")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(isFavorite ? Color(hex: 0xE53935) : AppTheme.Colors.textPrimary)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos")
         }
         .padding(.horizontal, AppTheme.Spacing.medium)
         .padding(.top, AppTheme.Spacing.small)
@@ -128,14 +153,20 @@ struct StationDetailView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
-            AdMobBannerView(adUnitID: AdMobConfig.Banner.stationDetail, reservesTabBarClearance: false)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
         }
         .padding(AppTheme.Spacing.large)
         .background(AppTheme.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
         .shadow(color: .black.opacity(0.14), radius: 10, x: 0, y: 4)
+    }
+
+    private var stationNativeAd: some View {
+        AdMobNativeAdView(
+            adUnitID: AdMobConfig.Native.stationDetail,
+            reservesTabBarClearance: false,
+            showsTopDividerWhenLoaded: true
+        )
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
     }
 
     private var mapFooter: some View {
@@ -172,6 +203,65 @@ struct StationDetailView: View {
 
         let kilometers = distanceMeters / 1_000
         return String(format: "%.1f km", locale: Locale(identifier: "pt_BR"), kilometers)
+    }
+
+    private func toggleFavorite() {
+        if isFavorite {
+            FavoriteStationsStore.remove(station.id)
+            isFavorite = false
+            showToast(
+                message: "Posto removido dos favoritos",
+                backgroundColor: Color(hex: 0x4A4A4A)
+            )
+        } else {
+            FavoriteStationsStore.add(station)
+            isFavorite = true
+            showToast(
+                message: "Posto adicionado aos favoritos",
+                backgroundColor: AppTheme.Colors.blue
+            )
+        }
+    }
+
+    private func showToast(message: String, backgroundColor: Color) {
+        let nextToast = StationToast(message: message, backgroundColor: backgroundColor)
+
+        withAnimation(.easeInOut(duration: 0.2)) {
+            toast = nextToast
+        }
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard toast?.id == nextToast.id else {
+                return
+            }
+
+            withAnimation(.easeInOut(duration: 0.2)) {
+                toast = nil
+            }
+        }
+    }
+}
+
+private struct StationToast: Identifiable {
+    let id = UUID()
+    let message: String
+    let backgroundColor: Color
+}
+
+private struct StationToastView: View {
+    let toast: StationToast
+
+    var body: some View {
+        Text(toast.message)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, AppTheme.Spacing.large)
+            .padding(.vertical, AppTheme.Spacing.medium)
+            .background(toast.backgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+            .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 3)
     }
 }
 
@@ -224,8 +314,8 @@ private struct DetailPriceCard: View {
     }
 
     private var priceText: String {
-        guard let value else {
-            return "R$ --"
+        guard let value, value > 0 else {
+            return "—"
         }
 
         let formatter = NumberFormatter()
