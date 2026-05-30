@@ -32,20 +32,20 @@ struct RootTabView: View {
             .tag(AppTab.home)
 
             NavigationStack {
-                HistoryView()
-            }
-            .tabItem {
-                Label(AppTab.history.title, systemImage: icon(for: .history))
-            }
-            .tag(AppTab.history)
-
-            NavigationStack {
                 StationsView()
             }
             .tabItem {
                 Label(AppTab.stations.title, systemImage: icon(for: .stations))
             }
             .tag(AppTab.stations)
+
+            NavigationStack {
+                MaintenanceView()
+            }
+            .tabItem {
+                Label(AppTab.maintenance.title, systemImage: icon(for: .maintenance))
+            }
+            .tag(AppTab.maintenance)
 
             NavigationStack {
                 MoreView()
@@ -123,8 +123,8 @@ struct RootTabView: View {
     @ViewBuilder
     private func destination(for route: HomeRoute) -> some View {
         switch route {
-        case .calculator:
-            CalculatorView()
+        case .calculator(let initialTab):
+            CalculatorView(initialTab: initialTab)
         case .tips:
             TipsView()
         case .settings:

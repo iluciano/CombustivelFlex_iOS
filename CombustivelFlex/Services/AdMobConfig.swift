@@ -11,5 +11,7 @@ enum AdMobConfig {
     enum Native {
         static let more = "ca-app-pub-1199102836233471/6566343739"
         static let stationDetail = "ca-app-pub-1199102836233471/6566343739"
+        static let maintenance = "ca-app-pub-1199102836233471/7477718691"
+        static let oilChange = "ca-app-pub-1199102836233471/7477718691"
     }
 }

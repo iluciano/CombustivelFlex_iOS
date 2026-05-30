@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum HomeRoute: Hashable {
-    case calculator
+    case calculator(CalculatorInitialTab = .calculator)
     case tips
     case settings
 }
@@ -22,8 +22,9 @@ struct StartView: View {
 
                 VStack(spacing: AppTheme.Spacing.medium) {
                     calculatorAction
-                    tabAction(.history, item: .history)
+                    historyAction
                     tabAction(.stations, item: .stations)
+                    tabAction(.maintenance, item: .maintenance)
                     tipsAction
                     settingsAction
                 }
@@ -47,9 +48,17 @@ struct StartView: View {
 
     private var calculatorAction: some View {
         Button {
-            navigate(.calculator)
+            navigate(.calculator())
         } label: {
             StartActionRow(item: .calculator)
+        }
+    }
+
+    private var historyAction: some View {
+        Button {
+            navigate(.calculator(.history))
+        } label: {
+            StartActionRow(item: .history)
         }
     }
 
@@ -147,6 +156,13 @@ private extension StartActionItem {
         tint: AppTheme.Colors.green,
         badge: "Novo",
         isHighlighted: true
+    )
+
+    static let maintenance = StartActionItem(
+        title: "Manutenção",
+        subtitle: "Acompanhe as manutenções do carro",
+        systemImage: "wrench.and.screwdriver.fill",
+        tint: AppTheme.Colors.blue
     )
 
     static let tips = StartActionItem(

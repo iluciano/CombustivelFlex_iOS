@@ -81,7 +81,7 @@ struct HistoryView: View {
     }
 }
 
-private struct HistoryItemView: View {
+struct HistoryItemView: View {
     let item: CalculationHistoryItem
 
     var body: some View {
