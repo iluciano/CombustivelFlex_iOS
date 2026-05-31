@@ -29,6 +29,18 @@ struct MaintenanceView: View {
                         }
                         .buttonStyle(.plain)
 
+                        NavigationLink {
+                            TirePressureOverviewView()
+                        } label: {
+                            MaintenanceOptionRow(
+                                title: "Calibragem dos pneus",
+                                subtitle: "Calibre e economize combustível",
+                                systemImage: "gauge.medium",
+                                tint: AppTheme.Colors.blue
+                            )
+                        }
+                        .buttonStyle(.plain)
+
                         AdMobNativeAdView(
                             adUnitID: AdMobConfig.Native.maintenance,
                             reservesTabBarClearance: false,
@@ -68,7 +80,10 @@ private struct MaintenanceOptionRow: View {
                 Text(subtitle)
                     .font(.subheadline)
                     .foregroundStyle(AppTheme.Colors.textSecondary)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
             }
+            .layoutPriority(1)
 
             Spacer()
 
@@ -83,6 +98,1030 @@ private struct MaintenanceOptionRow: View {
         .overlay {
             RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
                 .stroke(AppTheme.Colors.divider, lineWidth: 1)
+        }
+    }
+}
+
+struct TirePressureOverviewView: View {
+    @State private var latestRecord: TirePressureRecord?
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                    statusCard
+
+                    if let latestRecord {
+                        TirePressureDiagram(record: latestRecord)
+
+                        HStack(spacing: AppTheme.Spacing.medium) {
+                            TireDateSummary(title: "Última calibragem", value: latestRecord.date)
+                            TireDateSummary(title: "Próxima verificação", value: latestRecord.nextCheckDate)
+                        }
+                    } else {
+                        emptyState
+                    }
+
+                    TirePressureTipCard()
+
+                    NavigationLink {
+                        TirePressureRegisterView()
+                    } label: {
+                        TireButtonLabel(title: "+ Registrar calibragem", style: .primary)
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        TirePressureHistoryView()
+                    } label: {
+                        TireButtonLabel(title: "Histórico", style: .secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+        .navigationTitle("Calibragem dos pneus")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            latestRecord = TirePressureStore.getLatest()
+        }
+    }
+
+    private var statusCard: some View {
+        let hasRecord = latestRecord != nil
+
+        return HStack(spacing: AppTheme.Spacing.medium) {
+            Image(systemName: hasRecord ? "checkmark.circle.fill" : "gauge.medium")
+                .font(.title.weight(.semibold))
+                .foregroundStyle(hasRecord ? AppTheme.Colors.green : AppTheme.Colors.blue)
+                .frame(width: 44, height: 44)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(hasRecord ? "Tudo certo!" : "Nenhuma calibragem registrada")
+                    .font(.headline)
+                    .foregroundStyle(hasRecord ? AppTheme.Colors.green : AppTheme.Colors.textPrimary)
+
+                Text(hasRecord ? "Suas pressões recomendadas estão salvas." : "Registre a pressão recomendada para acompanhar melhor os pneus.")
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppTheme.Spacing.medium)
+        .background(hasRecord ? AppTheme.Colors.greenLight : Color(hex: 0xF2F4F7))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+    }
+
+    private var emptyState: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
+            Text("Comece registrando a calibragem")
+                .font(.headline)
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+
+            Text("Informe a pressão recomendada pelo fabricante para cada pneu. Depois disso, o resumo fica disponível aqui.")
+                .font(.body)
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+        }
+    }
+}
+
+struct TirePressureRegisterView: View {
+    @State private var date = Date()
+    @State private var kmText = ""
+    @State private var wasFueled = true
+    @State private var condition: TireCondition = .cold
+    @State private var shouldShowHotAlert = false
+
+    private var draft: TirePressureDraft {
+        TirePressureDraft(
+            date: date,
+            km: TirePressureFormatting.parseNumber(kmText),
+            wasFueled: wasFueled,
+            condition: condition
+        )
+    }
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                    Text("Nova calibragem")
+                        .font(.title.bold())
+                        .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                    DatePicker("Data da calibragem", selection: $date, displayedComponents: .date)
+
+                    MaintenanceTextField(title: "Quilometragem (opcional)", text: $kmText, keyboardType: .numberPad)
+                        .onChange(of: kmText) { _, value in
+                            kmText = TirePressureFormatting.numberField(TirePressureFormatting.parseNumber(value))
+                        }
+
+                    TireSegmentedBool(title: "Abastecido?", isOn: $wasFueled, onTitle: "Sim", offTitle: "Não")
+
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
+                        Text("Condição dos pneus")
+                            .font(.headline)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        HStack(spacing: AppTheme.Spacing.small) {
+                            ForEach(TireCondition.allCases, id: \.self) { item in
+                                Button {
+                                    condition = item
+                                    if item == .hot {
+                                        shouldShowHotAlert = true
+                                    }
+                                } label: {
+                                    Text(item.title)
+                                        .font(.headline)
+                                        .foregroundStyle(condition == item ? .white : AppTheme.Colors.textPrimary)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 48)
+                                        .background(condition == item ? AppTheme.Colors.blue : Color(hex: 0xEEF1F6))
+                                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    TirePressureTipCard(compact: true)
+
+                    NavigationLink {
+                        TirePressureMeasureView(draft: draft)
+                    } label: {
+                        TireButtonLabel(title: "Continuar", style: .primary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+        .navigationTitle("Nova calibragem")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Atenção", isPresented: $shouldShowHotAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Pneus quentes podem indicar pressão maior.\nUse como referência a pressão recomendada pelo fabricante com pneus frios.")
+        }
+    }
+}
+
+struct TirePressureMeasureView: View {
+    let draft: TirePressureDraft
+
+    @State private var frontLeftText = ""
+    @State private var frontRightText = ""
+    @State private var rearLeftText = ""
+    @State private var rearRightText = ""
+    @State private var savedRecord: TirePressureRecord?
+
+    private var frontLeft: Int { TirePressureFormatting.parseNumber(frontLeftText) }
+    private var frontRight: Int { TirePressureFormatting.parseNumber(frontRightText) }
+    private var rearLeft: Int { TirePressureFormatting.parseNumber(rearLeftText) }
+    private var rearRight: Int { TirePressureFormatting.parseNumber(rearRightText) }
+    private var canSave: Bool { [frontLeft, frontRight, rearLeft, rearRight].allSatisfy { $0 > 0 } }
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
+                        Text("Qual a pressão recomendada do seu carro?")
+                            .font(.title2.bold())
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        Text("Confira essa informação na etiqueta da porta do motorista, na tampa do combustível ou no manual do veículo.")
+                            .font(.subheadline)
+                            .foregroundStyle(AppTheme.Colors.textSecondary)
+                    }
+
+                    TirePressureInputGrid(
+                        frontLeftText: $frontLeftText,
+                        frontRightText: $frontRightText,
+                        rearLeftText: $rearLeftText,
+                        rearRightText: $rearRightText
+                    )
+
+                    if canSave {
+                        TireRecommendedSummary(
+                            frontLeft: frontLeft,
+                            frontRight: frontRight,
+                            rearLeft: rearLeft,
+                            rearRight: rearRight
+                        )
+                    }
+
+                    TirePressureTipCard(compact: true)
+
+                    Button {
+                        save()
+                    } label: {
+                        TireButtonLabel(title: "Salvar", style: .primary)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!canSave)
+                    .opacity(canSave ? 1 : 0.45)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+        .navigationTitle("Medir pneus")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(item: $savedRecord) { record in
+            TirePressureSavedView(record: record)
+        }
+    }
+
+    private func save() {
+        let record = TirePressureRecord(
+            timestamp: 0,
+            date: TirePressureFormatting.dateString(from: draft.date),
+            km: draft.km > 0 ? draft.km : nil,
+            wasFueled: draft.wasFueled,
+            tireCondition: draft.condition.title,
+            frontLeft: frontLeft,
+            frontRight: frontRight,
+            rearLeft: rearLeft,
+            rearRight: rearRight
+        )
+
+        savedRecord = TirePressureStore.save(record)
+    }
+}
+
+struct TirePressureSavedView: View {
+    let record: TirePressureRecord
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                VStack(spacing: AppTheme.Spacing.large) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 74, weight: .semibold))
+                        .foregroundStyle(AppTheme.Colors.green)
+
+                    Text("Calibragem salva\ncom sucesso!")
+                        .font(.title2.bold())
+                        .foregroundStyle(AppTheme.Colors.green)
+                        .multilineTextAlignment(.center)
+
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
+                        MaintenanceValueRow(title: "Data", value: record.date)
+                        MaintenanceValueRow(title: "Km", value: TirePressureFormatting.kmText(record.km))
+                        MaintenanceValueRow(title: "Condição", value: record.tireCondition)
+                    }
+                    .padding(AppTheme.Spacing.medium)
+                    .background(Color(hex: 0xF8FAFC))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+
+                    VStack(spacing: AppTheme.Spacing.small) {
+                        TirePressureResultRow(title: "Dianteiro esquerdo", value: record.frontLeft)
+                        TirePressureResultRow(title: "Dianteiro direito", value: record.frontRight)
+                        TirePressureResultRow(title: "Traseiro esquerdo", value: record.rearLeft)
+                        TirePressureResultRow(title: "Traseiro direito", value: record.rearRight)
+                    }
+                    .padding(AppTheme.Spacing.medium)
+                    .background(AppTheme.Colors.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                            .stroke(AppTheme.Colors.divider, lineWidth: 1)
+                    }
+
+                    NavigationLink {
+                        TirePressureOverviewView()
+                    } label: {
+                        TireButtonLabel(title: "Voltar para resumo", style: .primary)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+        .navigationTitle("Salvar calibragem")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct TirePressureHistoryView: View {
+    @State private var history: [TirePressureRecord] = []
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                    Text("Histórico de calibragens")
+                        .font(.title2.bold())
+                        .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                    if history.isEmpty {
+                        Text("Nenhuma calibragem registrada ainda.")
+                            .font(.body)
+                            .foregroundStyle(AppTheme.Colors.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppTheme.Spacing.large)
+                    } else {
+                        VStack(spacing: AppTheme.Spacing.medium) {
+                            ForEach(history) { record in
+                                NavigationLink {
+                                    TirePressureDetailView(timestamp: record.timestamp)
+                                } label: {
+                                    TirePressureHistoryCard(record: record)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    NavigationLink {
+                        TirePressureRegisterView()
+                    } label: {
+                        TireButtonLabel(title: "+ Nova calibragem", style: .primary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+        .navigationTitle("Histórico")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            history = TirePressureStore.getHistory()
+        }
+    }
+}
+
+struct TirePressureDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    let timestamp: Double
+
+    @State private var record: TirePressureRecord?
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                if let record {
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                        Text("Detalhes da calibragem")
+                            .font(.title2.bold())
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
+                            MaintenanceValueRow(title: "Data", value: record.date)
+                            MaintenanceValueRow(title: "Quilometragem", value: TirePressureFormatting.kmText(record.km))
+                            MaintenanceValueRow(title: "Abastecido", value: record.wasFueled ? "Sim" : "Não")
+                            MaintenanceValueRow(title: "Condição dos pneus", value: record.tireCondition)
+                        }
+
+                        Divider()
+
+                        VStack(spacing: AppTheme.Spacing.small) {
+                            TirePressureResultRow(title: "Dianteiro esquerdo", value: record.frontLeft)
+                            TirePressureResultRow(title: "Dianteiro direito", value: record.frontRight)
+                            TirePressureResultRow(title: "Traseiro esquerdo", value: record.rearLeft)
+                            TirePressureResultRow(title: "Traseiro direito", value: record.rearRight)
+                        }
+                        .padding(AppTheme.Spacing.medium)
+                        .background(AppTheme.Colors.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                                .stroke(AppTheme.Colors.divider, lineWidth: 1)
+                        }
+
+                        NavigationLink {
+                            TirePressureEditView(timestamp: record.timestamp)
+                        } label: {
+                            TireButtonLabel(title: "Editar", style: .secondary)
+                        }
+                        .buttonStyle(.plain)
+
+                        NavigationLink {
+                            TirePressureDeleteView(record: record) {
+                                dismiss()
+                            }
+                        } label: {
+                            Text("Excluir")
+                                .font(.headline)
+                                .foregroundStyle(Color(hex: 0xE53935))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 52)
+                                .background(AppTheme.Colors.surface)
+                                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
+                                        .stroke(Color(hex: 0xE53935), lineWidth: 1)
+                                }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+        .navigationTitle("Detalhes")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear(perform: load)
+    }
+
+    private func load() {
+        record = TirePressureStore.getHistory().first { $0.timestamp == timestamp }
+        if record == nil {
+            dismiss()
+        }
+    }
+}
+
+struct TirePressureEditView: View {
+    @Environment(\.dismiss) private var dismiss
+    let timestamp: Double
+
+    @State private var record: TirePressureRecord?
+    @State private var date = Date()
+    @State private var kmText = ""
+    @State private var wasFueled = true
+    @State private var condition: TireCondition = .cold
+    @State private var frontLeftText = ""
+    @State private var frontRightText = ""
+    @State private var rearLeftText = ""
+    @State private var rearRightText = ""
+    @State private var shouldShowHotAlert = false
+
+    private var frontLeft: Int { TirePressureFormatting.parseNumber(frontLeftText) }
+    private var frontRight: Int { TirePressureFormatting.parseNumber(frontRightText) }
+    private var rearLeft: Int { TirePressureFormatting.parseNumber(rearLeftText) }
+    private var rearRight: Int { TirePressureFormatting.parseNumber(rearRightText) }
+    private var canSave: Bool { [frontLeft, frontRight, rearLeft, rearRight].allSatisfy { $0 > 0 } }
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
+                    Text("Editar calibragem")
+                        .font(.title2.bold())
+                        .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                    TirePressureInputGrid(
+                        frontLeftText: $frontLeftText,
+                        frontRightText: $frontRightText,
+                        rearLeftText: $rearLeftText,
+                        rearRightText: $rearRightText
+                    )
+
+                    DatePicker("Data da calibragem", selection: $date, displayedComponents: .date)
+
+                    MaintenanceTextField(title: "Quilometragem", text: $kmText, keyboardType: .numberPad)
+                        .onChange(of: kmText) { _, value in
+                            kmText = TirePressureFormatting.numberField(TirePressureFormatting.parseNumber(value))
+                        }
+
+                    TireSegmentedBool(title: "Abastecido?", isOn: $wasFueled, onTitle: "Sim", offTitle: "Não")
+
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
+                        Text("Condição dos pneus")
+                            .font(.headline)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        HStack(spacing: AppTheme.Spacing.small) {
+                            ForEach(TireCondition.allCases, id: \.self) { item in
+                                Button {
+                                    condition = item
+                                    if item == .hot {
+                                        shouldShowHotAlert = true
+                                    }
+                                } label: {
+                                    Text(item.title)
+                                        .font(.headline)
+                                        .foregroundStyle(condition == item ? .white : AppTheme.Colors.textPrimary)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 48)
+                                        .background(condition == item ? AppTheme.Colors.blue : Color(hex: 0xEEF1F6))
+                                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    Button {
+                        save()
+                    } label: {
+                        TireButtonLabel(title: "Salvar alterações", style: .primary)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!canSave)
+                    .opacity(canSave ? 1 : 0.45)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+        .navigationTitle("Editar calibragem")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Atenção", isPresented: $shouldShowHotAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Pneus quentes podem indicar pressão maior.\nUse como referência a pressão recomendada pelo fabricante com pneus frios.")
+        }
+        .onAppear(perform: load)
+    }
+
+    private func load() {
+        guard let record = TirePressureStore.getHistory().first(where: { $0.timestamp == timestamp }) else {
+            dismiss()
+            return
+        }
+
+        self.record = record
+        date = TirePressureFormatting.date(from: record.date) ?? Date()
+        kmText = TirePressureFormatting.numberField(record.km ?? 0)
+        wasFueled = record.wasFueled
+        condition = TireCondition(title: record.tireCondition)
+        frontLeftText = "\(record.frontLeft)"
+        frontRightText = "\(record.frontRight)"
+        rearLeftText = "\(record.rearLeft)"
+        rearRightText = "\(record.rearRight)"
+    }
+
+    private func save() {
+        guard let record else {
+            return
+        }
+
+        TirePressureStore.update(
+            TirePressureRecord(
+                timestamp: record.timestamp,
+                date: TirePressureFormatting.dateString(from: date),
+                km: TirePressureFormatting.parseNumber(kmText) > 0 ? TirePressureFormatting.parseNumber(kmText) : nil,
+                wasFueled: wasFueled,
+                tireCondition: condition.title,
+                frontLeft: frontLeft,
+                frontRight: frontRight,
+                rearLeft: rearLeft,
+                rearRight: rearRight
+            )
+        )
+        dismiss()
+    }
+}
+
+struct TirePressureDeleteView: View {
+    @Environment(\.dismiss) private var dismiss
+    let record: TirePressureRecord
+    var onDelete: () -> Void = {}
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                VStack(spacing: AppTheme.Spacing.large) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 56))
+                        .foregroundStyle(AppTheme.Colors.orange)
+
+                    Text("Tem certeza que deseja excluir esta calibragem?")
+                        .font(.title2.bold())
+                        .foregroundStyle(AppTheme.Colors.textPrimary)
+                        .multilineTextAlignment(.center)
+
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
+                        MaintenanceValueRow(title: "Data", value: record.date)
+                        MaintenanceValueRow(title: "Km", value: TirePressureFormatting.kmText(record.km))
+                        TirePressureResultRow(title: "Dianteiro esquerdo", value: record.frontLeft)
+                        TirePressureResultRow(title: "Dianteiro direito", value: record.frontRight)
+                        TirePressureResultRow(title: "Traseiro esquerdo", value: record.rearLeft)
+                        TirePressureResultRow(title: "Traseiro direito", value: record.rearRight)
+                    }
+                    .padding(AppTheme.Spacing.medium)
+                    .background(Color(hex: 0xF8FAFC))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+
+                    Button {
+                        TirePressureStore.delete(timestamp: record.timestamp)
+                        onDelete()
+                        dismiss()
+                    } label: {
+                        Text("Excluir calibragem")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 52)
+                            .background(Color(hex: 0xE53935))
+                            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+
+                    SecondaryButton(title: "Cancelar") {
+                        dismiss()
+                    }
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+    }
+}
+
+struct TirePressureDraft: Hashable {
+    var date: Date
+    var km: Int
+    var wasFueled: Bool
+    var condition: TireCondition
+}
+
+enum TireCondition: CaseIterable {
+    case cold
+    case hot
+
+    init(title: String) {
+        self = title == Self.hot.title ? .hot : .cold
+    }
+
+    var title: String {
+        switch self {
+        case .cold: return "Frio"
+        case .hot: return "Quente"
+        }
+    }
+}
+
+private struct TireSegmentedBool: View {
+    let title: String
+    @Binding var isOn: Bool
+    let onTitle: String
+    let offTitle: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+
+            HStack(spacing: AppTheme.Spacing.small) {
+                TireChoiceButton(title: onTitle, isSelected: isOn) {
+                    isOn = true
+                }
+
+                TireChoiceButton(title: offTitle, isSelected: !isOn) {
+                    isOn = false
+                }
+            }
+        }
+    }
+}
+
+private struct TireChoiceButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(isSelected ? .white : AppTheme.Colors.textPrimary)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(isSelected ? AppTheme.Colors.blue : Color(hex: 0xEEF1F6))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct TirePressureInputGrid: View {
+    @Binding var frontLeftText: String
+    @Binding var frontRightText: String
+    @Binding var rearLeftText: String
+    @Binding var rearRightText: String
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 8) {
+            VStack(spacing: AppTheme.Spacing.medium) {
+                TirePressureField(title: "Dianteiro esq.", text: $frontLeftText)
+                TirePressureField(title: "Traseiro esq.", text: $rearLeftText)
+            }
+            .frame(maxWidth: .infinity)
+
+            TireCarImage()
+                .frame(width: 92, height: 220)
+
+            VStack(spacing: AppTheme.Spacing.medium) {
+                TirePressureField(title: "Dianteiro dir.", text: $frontRightText)
+                TirePressureField(title: "Traseiro dir.", text: $rearRightText)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+}
+
+private struct TirePressureField: View {
+    let title: String
+    @Binding var text: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(title)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(AppTheme.Colors.green)
+                .textCase(.uppercase)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.75)
+
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
+                TextField("32", text: $text)
+                    .keyboardType(.numberPad)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .onChange(of: text) { _, value in
+                        text = String(value.filter(\.isNumber).prefix(3))
+                    }
+
+                Text("psi")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(AppTheme.Colors.green)
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, minHeight: 104)
+        .background(AppTheme.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .stroke(AppTheme.Colors.divider, lineWidth: 1)
+        }
+    }
+}
+
+private struct TireRecommendedSummary: View {
+    let frontLeft: Int
+    let frontRight: Int
+    let rearLeft: Int
+    let rearRight: Int
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text("Pressão recomendada")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+
+            Text("Dianteiro: \(frontText) psi  •  Traseiro: \(rearText) psi")
+                .font(.headline)
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(AppTheme.Spacing.medium)
+        .background(Color(hex: 0xF8FAFC))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .stroke(AppTheme.Colors.divider, lineWidth: 1)
+        }
+    }
+
+    private var frontText: String {
+        frontLeft == frontRight ? "\(frontLeft)" : "\(frontLeft)/\(frontRight)"
+    }
+
+    private var rearText: String {
+        rearLeft == rearRight ? "\(rearLeft)" : "\(rearLeft)/\(rearRight)"
+    }
+}
+
+private struct TirePressureHistoryCard: View {
+    let record: TirePressureRecord
+
+    var body: some View {
+        HStack(spacing: AppTheme.Spacing.medium) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("\(record.date)  •  \(TirePressureFormatting.kmText(record.km))")
+                    .font(.headline)
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+
+                HStack(spacing: 12) {
+                    TireShortPressure(label: "DE", value: record.frontLeft)
+                    TireShortPressure(label: "DD", value: record.frontRight)
+                    TireShortPressure(label: "TE", value: record.rearLeft)
+                    TireShortPressure(label: "TD", value: record.rearRight)
+                }
+            }
+
+            Spacer(minLength: AppTheme.Spacing.small)
+
+            Image(systemName: "chevron.right")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.textMuted)
+        }
+        .padding(AppTheme.Spacing.medium)
+        .background(AppTheme.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .stroke(AppTheme.Colors.divider, lineWidth: 1)
+        }
+    }
+}
+
+private struct TireShortPressure: View {
+    let label: String
+    let value: Int
+
+    var body: some View {
+        Text("\(label) \(value)")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(AppTheme.Colors.textPrimary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+    }
+}
+
+private struct TirePressureDiagram: View {
+    let record: TirePressureRecord
+
+    var body: some View {
+        VStack(spacing: AppTheme.Spacing.medium) {
+            HStack(alignment: .center, spacing: AppTheme.Spacing.small) {
+                VStack(spacing: AppTheme.Spacing.medium) {
+                    TirePressureTile(title: "Dianteiro esquerdo", value: record.frontLeft)
+                    TirePressureTile(title: "Traseiro esquerdo", value: record.rearLeft)
+                }
+
+                TireCarImage()
+                    .frame(width: 92, height: 220)
+
+                VStack(spacing: AppTheme.Spacing.medium) {
+                    TirePressureTile(title: "Dianteiro direito", value: record.frontRight)
+                    TirePressureTile(title: "Traseiro direito", value: record.rearRight)
+                }
+            }
+        }
+    }
+}
+
+private struct TirePressureTile: View {
+    let title: String
+    let value: Int
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+
+            Text("\(value)")
+                .font(.system(size: 30, weight: .bold))
+                .foregroundStyle(AppTheme.Colors.green)
+
+            Text("psi")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.green)
+        }
+        .frame(maxWidth: .infinity, minHeight: 98)
+        .padding(8)
+        .background(AppTheme.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .stroke(AppTheme.Colors.green.opacity(0.25), lineWidth: 1)
+        }
+    }
+}
+
+private struct TireCarImage: View {
+    var body: some View {
+        Image("tire_car_top")
+            .resizable()
+            .scaledToFit()
+            .rotationEffect(.degrees(-90))
+            .shadow(color: .black.opacity(0.16), radius: 10, x: 0, y: 6)
+    }
+}
+
+private struct TireDateSummary: View {
+    let title: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+
+            Text(value)
+                .font(.headline)
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppTheme.Spacing.medium)
+        .background(AppTheme.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .stroke(AppTheme.Colors.divider, lineWidth: 1)
+        }
+    }
+}
+
+private struct TirePressureTipCard: View {
+    var compact = false
+
+    var body: some View {
+        HStack(alignment: .top, spacing: AppTheme.Spacing.small) {
+            Image(systemName: "info.circle.fill")
+                .font(.headline)
+                .foregroundStyle(AppTheme.Colors.blue)
+                .padding(.top, 2)
+
+            Text(compact ? compactText : fullText)
+                .font(.footnote)
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(AppTheme.Spacing.medium)
+        .background(Color(hex: 0xEFF6FF))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+    }
+
+    private var fullText: String {
+        "A pressão correta varia de acordo com o veículo, pneu e carga. Use sempre a pressão indicada pelo fabricante do carro.\n\nPara melhor precisão, calibre com os pneus frios: carro parado há pelo menos 3 horas ou rodando menos de 2 km."
+    }
+
+    private var compactText: String {
+        "Use sempre a pressão indicada pelo fabricante. Para melhor precisão, calibre com pneus frios."
+    }
+}
+
+private struct TireButtonLabel: View {
+    enum Style {
+        case primary
+        case secondary
+    }
+
+    let title: String
+    let style: Style
+
+    var body: some View {
+        Text(title)
+            .font(.headline)
+            .foregroundStyle(style == .primary ? .white : AppTheme.Colors.blue)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(style == .primary ? AppTheme.Colors.blue : AppTheme.Colors.surface)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+            .overlay {
+                if style == .secondary {
+                    RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
+                        .stroke(AppTheme.Colors.blue.opacity(0.45), lineWidth: 1)
+                }
+            }
+    }
+}
+
+private struct TirePressureResultRow: View {
+    let title: String
+    let value: Int
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+
+            Spacer()
+
+            Text("\(value) psi")
+                .font(.headline)
+                .foregroundStyle(AppTheme.Colors.green)
         }
     }
 }

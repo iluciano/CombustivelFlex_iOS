@@ -153,16 +153,16 @@ private extension StartActionItem {
         title: "Postos próximos",
         subtitle: "Encontre postos de gasolina perto de você",
         systemImage: "mappin.circle.fill",
-        tint: AppTheme.Colors.green,
-        badge: "Novo",
-        isHighlighted: true
+        tint: AppTheme.Colors.green
     )
 
     static let maintenance = StartActionItem(
         title: "Manutenção",
         subtitle: "Acompanhe as manutenções do carro",
         systemImage: "wrench.and.screwdriver.fill",
-        tint: AppTheme.Colors.blue
+        tint: AppTheme.Colors.blue,
+        badge: "Novo",
+        isHighlighted: true
     )
 
     static let tips = StartActionItem(
