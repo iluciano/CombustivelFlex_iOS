@@ -32,6 +32,7 @@ Criar um fluxo dentro de Manutenção com:
 6. Detalhes da calibragem
 7. Editar calibragem
 8. Excluir calibragem
+9. Lembrete de calibragem
 
 Todas as telas devem seguir o padrão visual do app: conteúdo em cards brancos, fundo claro, botões azuis principais e navegação consistente com as outras telas de manutenção.
 
@@ -195,6 +196,11 @@ Mostrar:
 Botão principal:
 - `Voltar para resumo`
 
+Botão secundário:
+- `Configurar lembrete`
+
+O botão **Configurar lembrete** abre a tela de lembrete de calibragem.
+
 ## Tela Histórico
 
 Título:
@@ -270,6 +276,53 @@ Ao excluir:
 - Remover o registro da persistência local.
 - Voltar para a tela de histórico/detalhes de forma natural.
 
+## Tela Lembrete
+
+Título:
+- `Lembrete de calibragem`
+
+Essa tela é acessada pela tela **Calibragem salva com sucesso**, através do botão:
+
+```text
+Configurar lembrete
+```
+
+Conteúdo:
+- Ícone grande de sino.
+- Texto principal:
+
+```text
+Receba um lembrete para verificar seus pneus
+```
+
+Campo de intervalo:
+- Label: `A cada`
+- Opções:
+  - `7 dias`
+  - `15 dias`
+  - `30 dias`
+
+Não incluir opção por quilometragem.
+
+Controle:
+- Toggle: `Ativar lembrete`
+
+Botão:
+- `Salvar`
+
+Comportamento:
+- Salvar a preferência localmente.
+- Se o toggle estiver ativo, agendar uma notificação local recorrente com o intervalo selecionado.
+- Se o toggle estiver desativado, cancelar o lembrete agendado.
+- Se o usuário não conceder permissão de notificação, informar que a permissão precisa ser ativada nas configurações do aparelho e manter o lembrete desativado.
+
+Texto sugerido da notificação:
+
+```text
+Hora de calibrar os pneus
+Verifique a pressão recomendada e calibre com os pneus frios para economizar combustível.
+```
+
 ## Textos e Ortografia
 
 Usar sempre:
@@ -282,6 +335,8 @@ Usar sempre:
 - `Traseiro direito`
 - `Condição dos pneus`
 - `Pressão recomendada`
+- `Lembrete de calibragem`
+- `Configurar lembrete`
 
 Corrigir ortografia sempre que encontrar textos antigos ou inconsistentes.
 

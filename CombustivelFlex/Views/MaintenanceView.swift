@@ -399,6 +399,13 @@ struct TirePressureSavedView: View {
                     }
 
                     NavigationLink {
+                        TirePressureReminderView()
+                    } label: {
+                        TireButtonLabel(title: "Configurar lembrete", style: .secondary)
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
                         TirePressureOverviewView()
                     } label: {
                         TireButtonLabel(title: "Voltar para resumo", style: .primary)
@@ -742,6 +749,128 @@ struct TirePressureDeleteView: View {
             .padding(.bottom, 120)
         }
         .background(AppTheme.Colors.background)
+    }
+}
+
+struct TirePressureReminderView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedDays = 7
+    @State private var isEnabled = true
+    @State private var shouldShowAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+
+    private let reminderOptions = [7, 15, 30]
+
+    var body: some View {
+        ScrollView {
+            PageCard {
+                VStack(spacing: AppTheme.Spacing.large) {
+                    VStack(spacing: AppTheme.Spacing.medium) {
+                        Image(systemName: "bell.fill")
+                            .font(.system(size: 64, weight: .semibold))
+                            .foregroundStyle(AppTheme.Colors.blue)
+                            .frame(width: 104, height: 104)
+                            .background(Color(hex: 0xEFF6FF))
+                            .clipShape(Circle())
+
+                        Text("Receba um lembrete para verificar seus pneus")
+                            .font(.title3.bold())
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+                            .multilineTextAlignment(.center)
+                    }
+
+                    VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
+                        Text("A cada")
+                            .font(.headline)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        Picker("Intervalo", selection: $selectedDays) {
+                            ForEach(reminderOptions, id: \.self) { days in
+                                Text("\(days) dias").tag(days)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, AppTheme.Spacing.medium)
+                        .frame(height: 52)
+                        .background(AppTheme.Colors.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
+                                .stroke(AppTheme.Colors.divider, lineWidth: 1)
+                        }
+                    }
+
+                    HStack {
+                        Text("Ativar lembrete")
+                            .font(.headline)
+                            .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        Spacer()
+
+                        Toggle("", isOn: $isEnabled)
+                            .labelsHidden()
+                            .tint(AppTheme.Colors.green)
+                    }
+                    .padding(AppTheme.Spacing.medium)
+                    .background(Color(hex: 0xF8FAFC))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
+
+                    TirePressureTipCard(compact: true)
+
+                    Button {
+                        save()
+                    } label: {
+                        TireButtonLabel(title: "Salvar", style: .primary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.medium)
+            .padding(.top, AppTheme.Spacing.large)
+            .padding(.bottom, 120)
+        }
+        .background(AppTheme.Colors.background)
+        .navigationTitle("Lembrete de calibragem")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert(alertTitle, isPresented: $shouldShowAlert) {
+            Button("OK") {
+                if alertTitle == "Lembrete salvo" || alertTitle == "Lembrete desativado" {
+                    dismiss()
+                }
+            }
+        } message: {
+            Text(alertMessage)
+        }
+        .onAppear(perform: load)
+    }
+
+    private func load() {
+        let settings = TirePressureReminderStore.getSettings()
+        selectedDays = reminderOptions.contains(settings.intervalDays) ? settings.intervalDays : 7
+        isEnabled = settings.isEnabled
+    }
+
+    private func save() {
+        let settings = TirePressureReminderSettings(isEnabled: isEnabled, intervalDays: selectedDays)
+
+        TirePressureReminderStore.save(settings) { didSave in
+            DispatchQueue.main.async {
+                if didSave {
+                    alertTitle = isEnabled ? "Lembrete salvo" : "Lembrete desativado"
+                    alertMessage = isEnabled
+                        ? "Você receberá um lembrete a cada \(selectedDays) dias para verificar seus pneus."
+                        : "O lembrete de calibragem foi desativado."
+                } else {
+                    isEnabled = false
+                    alertTitle = "Permissão necessária"
+                    alertMessage = "Ative as notificações do Combustível Flex nos Ajustes do iPhone para receber lembretes."
+                }
+
+                shouldShowAlert = true
+            }
+        }
     }
 }
 
