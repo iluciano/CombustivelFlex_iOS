@@ -8,6 +8,7 @@ struct PageCard<Content: View>: View {
             .padding(AppTheme.Spacing.large)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(AppTheme.Colors.surface)
+            .environment(\.colorScheme, .light)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 5)
     }
