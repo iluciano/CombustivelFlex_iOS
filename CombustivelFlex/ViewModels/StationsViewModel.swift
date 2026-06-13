@@ -85,28 +85,57 @@ final class StationsViewModel: NSObject, ObservableObject {
         isLoading = true
         errorMessage = nil
         let boundingBox = boundingBox(around: location.coordinate)
+        let latitudeFields = ["latitude", "Latitude", "LATITUDE"]
+
+        queryStations(
+            near: location,
+            boundingBox: boundingBox,
+            latitudeFields: latitudeFields,
+            fieldIndex: 0
+        )
+    }
+
+    private func queryStations(
+        near location: CLLocation,
+        boundingBox: StationBoundingBox,
+        latitudeFields: [String],
+        fieldIndex: Int
+    ) {
+        let latitudeField = latitudeFields[fieldIndex]
 
         Firestore.firestore()
             .collection("postos")
-            .whereField("latitude", isGreaterThan: boundingBox.minLatitude)
-            .whereField("latitude", isLessThan: boundingBox.maxLatitude)
+            .whereField(latitudeField, isGreaterThan: boundingBox.minLatitude)
+            .whereField(latitudeField, isLessThan: boundingBox.maxLatitude)
             .getDocuments { [weak self] snapshot, error in
             Task { @MainActor in
                 guard let self else {
                     return
                 }
 
-                self.isLoading = false
-
                 if let error {
-                    self.errorMessage = "Não foi possível carregar os postos. Verifique sua conexão e tente novamente."
+                    self.isLoading = false
+                    self.errorMessage = "Erro ao buscar postos no Firestore. Verifique sua conexão ou as permissões da base."
                     #if DEBUG
-                    print("Firestore stations error: \(error.localizedDescription)")
+                    let nsError = error as NSError
+                    print("Firestore stations error: \(nsError.domain) \(nsError.code) - \(nsError.localizedDescription)")
                     #endif
                     return
                 }
 
                 let documents = snapshot?.documents ?? []
+                if documents.isEmpty && fieldIndex + 1 < latitudeFields.count {
+                    self.queryStations(
+                        near: location,
+                        boundingBox: boundingBox,
+                        latitudeFields: latitudeFields,
+                        fieldIndex: fieldIndex + 1
+                    )
+                    return
+                }
+
+                self.isLoading = false
+
                 let loadedStations = documents.compactMap { document in
                     self.makeStation(from: document, userLocation: location, boundingBox: boundingBox)
                 }
@@ -116,7 +145,7 @@ final class StationsViewModel: NSObject, ObservableObject {
                 let nearestStations = Array(sortedStations.prefix(Self.maximumStationsCount))
 
                 #if DEBUG
-                print("Firestore postos documents in latitude box: \(documents.count), parsed in bounding box: \(loadedStations.count), displayed: \(nearestStations.count)")
+                print("Firestore postos latitude field '\(latitudeField)' documents in latitude box: \(documents.count), parsed in bounding box: \(loadedStations.count), displayed: \(nearestStations.count)")
                 #endif
 
                 if !documents.isEmpty && loadedStations.isEmpty {
@@ -135,7 +164,20 @@ final class StationsViewModel: NSObject, ObservableObject {
     ) -> FuelStation? {
         let data = document.data()
 
-        guard let name = stringValue(data, keys: ["nome", "name", "Nome", "posto", "razao_social"]),
+        guard let name = stringValue(
+            data,
+            keys: [
+                "nome",
+                "name",
+                "Nome",
+                "posto",
+                "razao_social",
+                "razaoSocial",
+                "nome_fantasia",
+                "nomeFantasia",
+                "revenda"
+            ]
+        ),
               let coordinate = coordinateValue(data) else {
             #if DEBUG
             print("Skipped posto \(document.documentID). Keys: \(Array(data.keys).sorted())")
@@ -153,7 +195,7 @@ final class StationsViewModel: NSObject, ObservableObject {
         return FuelStation(
             id: document.documentID,
             name: name,
-            brand: FuelStationBrand(rawValue: stringValue(data, keys: ["bandeira", "brand", "marca"]) ?? ""),
+            brand: FuelStationBrand(rawValue: stringValue(data, keys: ["bandeira", "brand", "marca", "distribuidora"]) ?? ""),
             latitude: coordinate.latitude,
             longitude: coordinate.longitude,
             regularGasolinePrice: doubleValue(
@@ -165,14 +207,39 @@ final class StationsViewModel: NSObject, ObservableObject {
                     "gasolina_comum",
                     "gasolinaComum",
                     "precoGasolina",
-                    "gasolina"
+                    "gasolina",
+                    "valor_gasolina",
+                    "valorGasolina",
+                    "valor_gasolina_comum",
+                    "valorGasolinaComum"
                 ]
             ) ?? 0,
-            additiveGasolinePrice: doubleValue(data, keys: ["preco_gasolina_aditivada", "precoGasolinaAditivada", "gasolina_aditivada", "gasolinaAditivada"]),
-            ethanolPrice: doubleValue(data, keys: ["preco_etanol", "precoEtanol", "etanol"]),
+            additiveGasolinePrice: doubleValue(
+                data,
+                keys: [
+                    "preco_gasolina_aditivada",
+                    "precoGasolinaAditivada",
+                    "gasolina_aditivada",
+                    "gasolinaAditivada",
+                    "valor_gasolina_aditivada",
+                    "valorGasolinaAditivada"
+                ]
+            ),
+            ethanolPrice: doubleValue(
+                data,
+                keys: [
+                    "preco_etanol",
+                    "precoEtanol",
+                    "etanol",
+                    "etanol_hidratado",
+                    "etanolHidratado",
+                    "valor_etanol",
+                    "valorEtanol"
+                ]
+            ),
             address: addressValue(data),
-            updatedAt: formattedUpdatedAt(data, keys: ["atualizado_em", "atualizadoEm", "updated_at", "updatedAt"]),
-            collectionDate: formattedUpdatedAt(data, keys: ["data_ultima_coleta", "dataUltimaColeta", "data_coleta", "dataColeta"]),
+            updatedAt: formattedUpdatedAt(data, keys: ["atualizado_em", "atualizadoEm", "updated_at", "updatedAt", "atualizacao"]),
+            collectionDate: formattedUpdatedAt(data, keys: ["data_ultima_coleta", "dataUltimaColeta", "data_coleta", "dataColeta", "dataColetaANP"]),
             distanceMeters: stationLocation.distance(from: userLocation)
         )
     }
@@ -235,19 +302,19 @@ final class StationsViewModel: NSObject, ObservableObject {
     }
 
     private func coordinateValue(_ data: [String: Any]) -> (latitude: Double, longitude: Double)? {
-        if let latitude = doubleValue(data, keys: ["latitude", "lat", "Latitude"]),
-           let longitude = doubleValue(data, keys: ["longitude", "lng", "lon", "long", "Longitude"]) {
+        if let latitude = doubleValue(data, keys: ["latitude", "lat", "Latitude", "LATITUDE"]),
+           let longitude = doubleValue(data, keys: ["longitude", "lng", "lon", "long", "Longitude", "LONGITUDE"]) {
             return (latitude, longitude)
         }
 
-        for key in ["localizacao", "location", "coordenadas", "geo", "geopoint"] {
+        for key in ["localizacao", "location", "coordenadas", "coordenada", "geo", "geopoint", "coordinates"] {
             if let geoPoint = data[key] as? GeoPoint {
                 return (geoPoint.latitude, geoPoint.longitude)
             }
 
             if let coordinate = data[key] as? [String: Any],
-               let latitude = doubleValue(coordinate, keys: ["latitude", "lat"]),
-               let longitude = doubleValue(coordinate, keys: ["longitude", "lng", "lon", "long"]) {
+               let latitude = doubleValue(coordinate, keys: ["latitude", "lat", "_latitude"]),
+               let longitude = doubleValue(coordinate, keys: ["longitude", "lng", "lon", "long", "_longitude"]) {
                 return (latitude, longitude)
             }
         }
@@ -275,7 +342,13 @@ final class StationsViewModel: NSObject, ObservableObject {
         }
 
         if let value = value as? String {
-            return Double(value.replacingOccurrences(of: ",", with: "."))
+            let normalizedValue = value
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: "R$", with: "")
+                .replacingOccurrences(of: " ", with: "")
+                .replacingOccurrences(of: ",", with: ".")
+
+            return Double(normalizedValue)
         }
 
         return nil

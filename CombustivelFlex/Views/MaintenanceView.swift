@@ -573,6 +573,8 @@ struct TirePressureEditView: View {
     @State private var rearLeftText = ""
     @State private var rearRightText = ""
     @State private var shouldShowHotAlert = false
+    @State private var shouldShowReminderPermissionAlert = false
+    @State private var isReminderEnabled = true
 
     private var frontLeft: Int { TirePressureFormatting.parseNumber(frontLeftText) }
     private var frontRight: Int { TirePressureFormatting.parseNumber(frontRightText) }
@@ -630,6 +632,8 @@ struct TirePressureEditView: View {
                         }
                     }
 
+                    TireReminderToggle(isEnabled: $isReminderEnabled)
+
                     Button {
                         save()
                     } label: {
@@ -652,6 +656,11 @@ struct TirePressureEditView: View {
         } message: {
             Text("Pneus quentes podem indicar pressão maior.\nUse como referência a pressão recomendada pelo fabricante com pneus frios.")
         }
+        .alert("Permissão necessária", isPresented: $shouldShowReminderPermissionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Ative as notificações do Combustível Flex nos Ajustes do iPhone para receber lembretes.")
+        }
         .onAppear(perform: load)
     }
 
@@ -670,6 +679,7 @@ struct TirePressureEditView: View {
         frontRightText = "\(record.frontRight)"
         rearLeftText = "\(record.rearLeft)"
         rearRightText = "\(record.rearRight)"
+        isReminderEnabled = TirePressureReminderStore.getSettings().isEnabled
     }
 
     private func save() {
@@ -690,7 +700,24 @@ struct TirePressureEditView: View {
                 rearRight: rearRight
             )
         )
-        dismiss()
+
+        let currentReminderSettings = TirePressureReminderStore.getSettings()
+        let updatedReminderSettings = TirePressureReminderSettings(
+            isEnabled: isReminderEnabled,
+            intervalDays: currentReminderSettings.intervalDays,
+            nextFireDate: currentReminderSettings.nextFireDate
+        )
+
+        TirePressureReminderStore.save(updatedReminderSettings) { didSave in
+            DispatchQueue.main.async {
+                if didSave {
+                    dismiss()
+                } else {
+                    isReminderEnabled = false
+                    shouldShowReminderPermissionAlert = true
+                }
+            }
+        }
     }
 }
 
@@ -786,8 +813,8 @@ struct TirePressureReminderView: View {
                             .foregroundStyle(AppTheme.Colors.textPrimary)
 
                         Picker("Intervalo", selection: $selectedDays) {
-                            ForEach(reminderOptions, id: \.self) { days in
-                                Text("\(days) dias").tag(days)
+                            ForEach(reminderOptions, id: \.self) { interval in
+                                Text(reminderOptionTitle(interval)).tag(interval)
                             }
                         }
                         .pickerStyle(.menu)
@@ -860,7 +887,7 @@ struct TirePressureReminderView: View {
                 if didSave {
                     alertTitle = isEnabled ? "Lembrete salvo" : "Lembrete desativado"
                     alertMessage = isEnabled
-                        ? "Você receberá um lembrete a cada \(selectedDays) dias para verificar seus pneus."
+                        ? "Você receberá um lembrete a cada \(reminderOptionTitle(selectedDays).lowercased()) para verificar seus pneus."
                         : "O lembrete de calibragem foi desativado."
                 } else {
                     isEnabled = false
@@ -871,6 +898,37 @@ struct TirePressureReminderView: View {
                 shouldShowAlert = true
             }
         }
+    }
+
+    private func reminderOptionTitle(_ interval: Int) -> String {
+        "\(interval) dias"
+    }
+}
+
+private struct TireReminderToggle: View {
+    @Binding var isEnabled: Bool
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Lembrete de calibragem")
+                    .font(.headline)
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                Text(isEnabled ? "Lembrete ativo" : "Lembrete desativado")
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
+            }
+
+            Spacer()
+
+            Toggle("", isOn: $isEnabled)
+                .labelsHidden()
+                .tint(AppTheme.Colors.green)
+        }
+        .padding(AppTheme.Spacing.medium)
+        .background(Color(hex: 0xF8FAFC))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous))
     }
 }
 

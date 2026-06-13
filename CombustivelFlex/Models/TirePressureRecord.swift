@@ -132,13 +132,16 @@ enum TirePressureFormatting {
 struct TirePressureReminderSettings: Codable {
     var isEnabled: Bool
     var intervalDays: Int
+    var nextFireDate: Date?
 
-    static let standard = TirePressureReminderSettings(isEnabled: true, intervalDays: 7)
+    static let standard = TirePressureReminderSettings(isEnabled: true, intervalDays: 7, nextFireDate: nil)
 }
 
 enum TirePressureReminderStore {
     private static let key = "tire_pressure_reminder_settings"
     private static let notificationIdentifier = "tire_pressure_reminder"
+    private static let scheduledNotificationCount = 12
+    private static let allowedIntervals = [7, 15, 30]
 
     static func getSettings() -> TirePressureReminderSettings {
         guard let data = UserDefaults.standard.data(forKey: key),
@@ -146,7 +149,7 @@ enum TirePressureReminderStore {
             return .standard
         }
 
-        return settings
+        return sanitizedSettings(settings)
     }
 
     static func save(_ settings: TirePressureReminderSettings, completion: @escaping (Bool) -> Void) {
@@ -159,34 +162,65 @@ enum TirePressureReminderStore {
 
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { isGranted, _ in
             if isGranted {
-                persist(settings)
-                scheduleReminder(settings)
+                let scheduledSettings = settingsForNewSchedule(settings)
+                persist(scheduledSettings)
+                scheduleReminder(scheduledSettings)
                 completion(true)
             } else {
-                persist(TirePressureReminderSettings(isEnabled: false, intervalDays: settings.intervalDays))
+                persist(TirePressureReminderSettings(isEnabled: false, intervalDays: settings.intervalDays, nextFireDate: nil))
                 removeScheduledReminder()
                 completion(false)
             }
         }
     }
 
+    static func refreshScheduledReminders() {
+        var settings = getSettings()
+
+        guard settings.isEnabled else {
+            removeScheduledReminder()
+            return
+        }
+
+        UNUserNotificationCenter.current().getNotificationSettings { notificationSettings in
+            guard notificationSettings.authorizationStatus == .authorized ||
+                  notificationSettings.authorizationStatus == .provisional else {
+                return
+            }
+
+            settings = normalizedSettings(settings)
+            persist(settings)
+            scheduleReminder(settings)
+        }
+    }
+
     private static func scheduleReminder(_ settings: TirePressureReminderSettings) {
         removeScheduledReminder()
 
-        let content = UNMutableNotificationContent()
-        content.title = "Hora de calibrar os pneus"
-        content.body = "Verifique a pressão recomendada e calibre com os pneus frios para economizar combustível."
-        content.sound = .default
+        let calendar = Calendar.current
+        let startDate = settings.nextFireDate ?? nextFireDate(from: Date(), intervalDays: settings.intervalDays)
 
-        let interval = TimeInterval(settings.intervalDays * 24 * 60 * 60)
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: true)
-        let request = UNNotificationRequest(identifier: notificationIdentifier, content: content, trigger: trigger)
+        for index in 0..<scheduledNotificationCount {
+            guard let fireDate = reminderDate(from: startDate, interval: settings.intervalDays, multiplier: index) else {
+                continue
+            }
 
-        UNUserNotificationCenter.current().add(request)
+            let content = UNMutableNotificationContent()
+            content.title = "Hora de calibrar os pneus"
+            content.body = "Verifique a pressão recomendada e calibre com os pneus frios para economizar combustível."
+            content.sound = .default
+
+            let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: fireDate)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+            let request = UNNotificationRequest(identifier: notificationIdentifier(for: index), content: content, trigger: trigger)
+
+            UNUserNotificationCenter.current().add(request)
+        }
     }
 
     private static func removeScheduledReminder() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [notificationIdentifier])
+        let identifiers = [notificationIdentifier] + (0..<scheduledNotificationCount).map(notificationIdentifier(for:))
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
     private static func persist(_ settings: TirePressureReminderSettings) {
@@ -195,5 +229,54 @@ enum TirePressureReminderStore {
         }
 
         UserDefaults.standard.set(data, forKey: key)
+    }
+
+    private static func settingsForNewSchedule(_ settings: TirePressureReminderSettings) -> TirePressureReminderSettings {
+        let intervalDays = sanitizedInterval(settings.intervalDays)
+
+        return TirePressureReminderSettings(
+            isEnabled: settings.isEnabled,
+            intervalDays: intervalDays,
+            nextFireDate: nextFireDate(from: Date(), intervalDays: intervalDays)
+        )
+    }
+
+    private static func normalizedSettings(_ settings: TirePressureReminderSettings) -> TirePressureReminderSettings {
+        let settings = sanitizedSettings(settings)
+        var nextDate = settings.nextFireDate ?? nextFireDate(from: Date(), intervalDays: settings.intervalDays)
+
+        while nextDate <= Date() {
+            nextDate = nextFireDate(from: nextDate, intervalDays: settings.intervalDays)
+        }
+
+        return TirePressureReminderSettings(
+            isEnabled: settings.isEnabled,
+            intervalDays: settings.intervalDays,
+            nextFireDate: nextDate
+        )
+    }
+
+    private static func nextFireDate(from date: Date, intervalDays: Int) -> Date {
+        reminderDate(from: date, interval: intervalDays, multiplier: 1) ?? date.addingTimeInterval(TimeInterval(intervalDays * 24 * 60 * 60))
+    }
+
+    private static func reminderDate(from date: Date, interval: Int, multiplier: Int) -> Date? {
+        return Calendar.current.date(byAdding: .day, value: interval * multiplier, to: date)
+    }
+
+    private static func notificationIdentifier(for index: Int) -> String {
+        "\(notificationIdentifier)_\(index)"
+    }
+
+    private static func sanitizedSettings(_ settings: TirePressureReminderSettings) -> TirePressureReminderSettings {
+        TirePressureReminderSettings(
+            isEnabled: settings.isEnabled,
+            intervalDays: sanitizedInterval(settings.intervalDays),
+            nextFireDate: settings.nextFireDate
+        )
+    }
+
+    private static func sanitizedInterval(_ intervalDays: Int) -> Int {
+        allowedIntervals.contains(intervalDays) ? intervalDays : TirePressureReminderSettings.standard.intervalDays
     }
 }

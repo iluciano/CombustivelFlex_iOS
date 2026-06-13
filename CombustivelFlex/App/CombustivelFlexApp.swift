@@ -10,6 +10,7 @@ struct CombustivelFlexApp: App {
         }
 
         AdMobStartup.shared.start()
+        TirePressureReminderStore.refreshScheduledReminders()
     }
 
     var body: some Scene {

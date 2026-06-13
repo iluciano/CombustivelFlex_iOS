@@ -140,7 +140,7 @@ struct StationsView: View {
             StationsStateView(
                 systemImage: "wifi.exclamationmark",
                 title: "Não foi possível carregar",
-                message: errorMessage == "Não foi possível obter a localização." ? errorMessage : "Erro ao buscar postos. Verifique sua conexão.",
+                message: errorMessage,
                 buttonTitle: "Tentar novamente",
                 action: viewModel.refresh
             )
