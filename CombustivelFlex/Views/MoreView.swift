@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct MoreView: View {
+    let selectTab: (AppTab) -> Void
+
     var body: some View {
         ScrollView {
             PageCard {
@@ -10,6 +12,17 @@ struct MoreView: View {
                         .foregroundStyle(MoreViewColors.textPrimary)
 
                     VStack(spacing: AppTheme.Spacing.large) {
+                        NavigationLink {
+                            SettingsView()
+                        } label: {
+                            MoreOptionCard(
+                                title: "Configurações",
+                                subtitle: "Personalize suas preferências e o aplicativo",
+                                systemImage: "gearshape.fill",
+                                tint: AppTheme.Colors.textMuted
+                            )
+                        }
+
                         NavigationLink {
                             TipsView()
                         } label: {
@@ -21,14 +34,14 @@ struct MoreView: View {
                             )
                         }
 
-                        NavigationLink {
-                            SettingsView()
+                        Button {
+                            selectTab(.maintenance)
                         } label: {
                             MoreOptionCard(
-                                title: "Configurações",
-                                subtitle: "Personalize suas preferências e o aplicativo",
-                                systemImage: "gearshape.fill",
-                                tint: AppTheme.Colors.textMuted
+                                title: "Manutenção",
+                                subtitle: "Acompanhe as manutenções do carro",
+                                systemImage: "wrench.and.screwdriver.fill",
+                                tint: AppTheme.Colors.blue
                             )
                         }
                     }
@@ -151,6 +164,6 @@ private enum MoreViewColors {
 
 #Preview {
     NavigationStack {
-        MoreView()
+        MoreView { _ in }
     }
 }

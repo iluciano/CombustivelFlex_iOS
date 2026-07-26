@@ -48,7 +48,11 @@ struct RootTabView: View {
             .tag(AppTab.maintenance)
 
             NavigationStack {
-                MoreView()
+                MoreView(
+                    selectTab: { tab in
+                        selectTab(tab)
+                    }
+                )
             }
             .tabItem {
                 Label(AppTab.more.title, systemImage: icon(for: .more))

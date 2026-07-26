@@ -160,9 +160,7 @@ private extension StartActionItem {
         title: "Manutenção",
         subtitle: "Acompanhe as manutenções do carro",
         systemImage: "wrench.and.screwdriver.fill",
-        tint: AppTheme.Colors.blue,
-        badge: "Novo",
-        isHighlighted: true
+        tint: AppTheme.Colors.blue
     )
 
     static let tips = StartActionItem(
